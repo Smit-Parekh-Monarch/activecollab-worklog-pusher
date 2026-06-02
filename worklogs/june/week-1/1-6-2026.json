@@ -1,23 +1,26 @@
-[
-  {
-    "name": "Custom CRM Page — Setup, Hero & Overview",
-    "date": "2026-06-01",
-    "hours": "03:30",
-    "body": "Setup, Hero & Overview",
-    "summary": "- Scaffolded the page route, dictionary, and nav entry for the CRM page\n- Built the Hero and Overview sections from Figma\n- Added the hero-bg and overview SVG illustrations"
-  },
-  {
-    "name": "Custom CRM Page — Services & Process Sections",
-    "date": "2026-06-01",
-    "hours": "02:30",
-    "body": "Services & Process sections",
-    "summary": "- Built the Services section with cards and content\n- Built the Process section step layout\n- Applied design-system tokens and responsive styling"
-  },
-  {
-    "name": "Custom CRM Page — Tech, FAQ & CTA Sections",
-    "date": "2026-06-01",
-    "hours": "02:33",
-    "body": "Tech, FAQ & CTA sections",
-    "summary": "- Built the Tech/technologies section\n- Built the FAQ accordion section\n- Built the closing CTA banner and verified the full page"
-  }
-]
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Custom CRM Page — Setup, Hero & Overview",
+      "date": "2026-06-01",
+      "hours": "03:30",
+      "body": "Setup, Hero & Overview",
+      "summary": "- Scaffolded the page route, dictionary, and nav entry for the CRM page\n- Built the Hero and Overview sections from Figma\n- Added the hero-bg and overview SVG illustrations"
+    },
+    {
+      "name": "Custom CRM Page — Services & Process Sections",
+      "date": "2026-06-01",
+      "hours": "02:30",
+      "body": "Services & Process sections",
+      "summary": "- Built the Services section with cards and content\n- Built the Process section step layout\n- Applied design-system tokens and responsive styling"
+    },
+    {
+      "name": "Custom CRM Page — Tech, FAQ & CTA Sections",
+      "date": "2026-06-01",
+      "hours": "02:33",
+      "body": "Tech, FAQ & CTA sections",
+      "summary": "- Built the Tech/technologies section\n- Built the FAQ accordion section\n- Built the closing CTA banner and verified the full page"
+    }
+  ]
+}

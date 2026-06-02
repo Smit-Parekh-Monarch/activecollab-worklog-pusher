@@ -108,6 +108,7 @@ function App() {
   const [jsonText, setJsonText]   = useState('');
   const [tasks, setTasks]         = useState([]);
   const [showReview, setShowReview] = useState(false);
+  // (pushed flag now lives in the JSON file itself — no separate state needed)
 
   // push
   const [status, setStatus]       = useState({});
@@ -187,7 +188,7 @@ function App() {
       const wls = (data.files||[]).map(f => ({
         rel: f.rel, date: f.date||null, valid: f.valid !== false,
         mtime: f.mtime, tasks: [], loaded: false,
-        count: f.count||0, hours: f.hours||0,
+        count: f.count||0, hours: f.hours||0, pushed: f.pushed||false,
       }));
       setWorklogs(wls);
       // auto-select today on first load only
@@ -227,8 +228,8 @@ function App() {
       const txt = await r.text();
       if (!r.ok) { toast('Load failed','err'); return; }
       setJsonText(txt);
-      const arr = JSON.parse(txt);
-      loadTasks(Array.isArray(arr) ? arr : (arr.tasks||[]));
+      const json = JSON.parse(txt);
+      loadTasks(Array.isArray(json) ? json : (json.tasks||[]));
     } catch(e) { toast('Could not load file','err'); }
   }
 
@@ -255,6 +256,16 @@ function App() {
     setStatus(s => { const n={}; Object.keys(s).forEach(k=>{const ki=+k; if(ki<i) n[ki]=s[ki]; else if(ki>i) n[ki-1]=s[ki];}); return n; });
   }
   function addRow() { setTasks(ts => [...ts, {name:'', date:tasks[0]?.date||todayISO(), hours:0, summary:'', body:''}]); }
+
+  // mark a file as pushed — writes pushed:true into the JSON on disk, updates local state
+  async function markFileDone(rel) {
+    if (!rel) return;
+    try {
+      await fetch('/api/worklog/mark-pushed?path='+encodeURIComponent(rel), {method:'POST'});
+      // update local worklogs state so badge appears immediately without a reload
+      setWorklogs(ws => ws.map(w => w.rel===rel ? {...w, pushed:true} : w));
+    } catch {}
+  }
 
   const totalHours = tasks.reduce((s,t) => s+(Number(t.hours)||0), 0);
   function fmtTotal(dec) {
@@ -315,7 +326,11 @@ function App() {
           else if (ev.status === 'error') setStep(ri,ev.step,'err');
         }
       }
-      if (!cancelRef.current) toast(indices.length===1?'Task pushed ✓':`${indices.length} tasks pushed ✓`,'ok');
+      if (!cancelRef.current) {
+        toast(indices.length===1?'Task pushed ✓':`${indices.length} tasks pushed ✓`,'ok');
+        // if we just pushed ALL tasks for the selected file, mark it done
+        if (isAll && selectedRel) markFileDone(selectedRel);
+      }
     } catch(e) {
       toast('Push failed: '+e.message,'err');
     } finally {
@@ -467,6 +482,17 @@ function App() {
                           {' '}<span className="sp-fname">{w.rel.split('/').pop()}</span>
                         </div>
                       </div>
+                      {w.pushed
+                        ? <span className="pill ok" style={{fontSize:11,padding:'3px 9px',flexShrink:0}}>
+                            <ion-icon name="checkmark-circle"></ion-icon>pushed
+                          </span>
+                        : <button
+                            title="Mark as pushed"
+                            onClick={e=>{e.stopPropagation(); markFileDone(w.rel); toast('Marked as pushed ✓','ok');}}
+                            style={{background:'none',border:'1px solid var(--border)',borderRadius:7,padding:'3px 8px',cursor:'pointer',fontSize:11,fontWeight:700,color:'var(--text3)',display:'inline-flex',alignItems:'center',gap:4,whiteSpace:'nowrap',flexShrink:0}}
+                          >
+                            <ion-icon name="checkmark-outline" style={{fontSize:13}}></ion-icon>Mark done
+                          </button>}
                       <ion-icon name="chevron-forward-outline" className="sp-go"></ion-icon>
                     </div>
                   );

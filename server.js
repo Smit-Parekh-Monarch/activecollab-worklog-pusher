@@ -1,7 +1,7 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join, relative, resolve } from 'path';
-import { readdir, readFile, stat, mkdir } from 'fs/promises';
+import { readdir, readFile, writeFile, stat, mkdir } from 'fs/promises';
 import { existsSync, watch } from 'fs';
 import { networkInterfaces } from 'os';
 
@@ -240,6 +240,7 @@ async function walkJson(dir, base) {
         meta.count = arr.length;
         meta.hours = +arr.reduce((s, t) => s + parseHoursServer(t.hours ?? t.duration ?? t.time ?? 0), 0).toFixed(2);
         meta.date = (arr[0] && (arr[0].date || arr[0].record_date)) || null;
+        meta.pushed = !Array.isArray(json) && json.pushed === true;
         meta.valid = true;
       } catch {}
       out.push(meta);
@@ -271,6 +272,30 @@ app.get('/api/worklog', async (req, res) => {
     res.type('application/json').send(txt);
   } catch (e) {
     res.status(404).json({ error: 'Cannot read file: ' + e.message });
+  }
+});
+
+// mark a work-log file as pushed — writes pushed:true into the JSON file itself
+app.post('/api/worklog/mark-pushed', async (req, res) => {
+  const rel = String(req.query.path || '');
+  const full = resolve(WORKLOG_DIR, rel);
+  const insideRel = relative(WORKLOG_DIR, full);
+  if (insideRel.startsWith('..') || insideRel.includes('..\\') || insideRel.includes('../')) {
+    return res.status(400).json({ error: 'Invalid path.' });
+  }
+  try {
+    const txt = await readFile(full, 'utf8');
+    let json = JSON.parse(txt);
+    // support both array format and object format
+    if (Array.isArray(json)) {
+      json = { pushed: true, tasks: json };
+    } else {
+      json.pushed = true;
+    }
+    await writeFile(full, JSON.stringify(json, null, 2), 'utf8');
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 
