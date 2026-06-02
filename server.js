@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join, relative, resolve } from 'path';
 import { readdir, readFile, stat, mkdir } from 'fs/promises';
 import { existsSync, watch } from 'fs';
+import { networkInterfaces } from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -317,7 +318,23 @@ try {
   console.log('  Live updates: off (' + e.message + ')');
 }
 
-app.listen(PORT, () => {
-  console.log(`\n  ActiveCollab Work-log Pusher running at:  http://localhost:${PORT}`);
-  console.log(`  Work-log folder: ${WORKLOG_DIR}\n`);
+app.listen(PORT, '0.0.0.0', () => {
+  // find LAN IP so we can print the shareable address
+  let lanIP = 'your-machine-ip';
+  try {
+    const nets = networkInterfaces();
+    for (const list of Object.values(nets)) {
+      for (const n of list) {
+        if (n.family === 'IPv4' && !n.internal) { lanIP = n.address; break; }
+      }
+      if (lanIP !== 'your-machine-ip') break;
+    }
+  } catch {}
+  console.log(`\n  ┌─────────────────────────────────────────────────────┐`);
+  console.log(`  │  Work-log Pusher                                     │`);
+  console.log(`  │                                                      │`);
+  console.log(`  │  Local  →  http://localhost:${PORT}                  │`);
+  console.log(`  │  Share  →  http://${lanIP}:${PORT}          │`);
+  console.log(`  │  Figma  →  http://${lanIP}:${PORT}/figma    │`);
+  console.log(`  └─────────────────────────────────────────────────────┘\n`);
 });

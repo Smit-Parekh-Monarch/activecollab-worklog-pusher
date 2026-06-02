@@ -337,8 +337,11 @@
         <h2>Connect session</h2>
       </div>
       <p class="card-sub">
-        In ActiveCollab → DevTools → Network, find a <code>POST …/tasks</code> request,
-        right-click → <b>Copy as cURL</b>, then paste it below. Saved across refreshes.
+        <b>Step 1:</b> Open ActiveCollab in your browser and go to your project.<br>
+        <b>Step 2:</b> Press <code>F12</code> → click <b>Network</b> tab → click <b>Fetch/XHR</b>.<br>
+        <b>Step 3:</b> Create any task in ActiveCollab (just type a name and save it).<br>
+        <b>Step 4:</b> In the Network tab, find the <code>tasks</code> request → right-click → <b>Copy → Copy as cURL (bash)</b>.<br>
+        <b>Step 5:</b> Paste it below and the app extracts everything automatically.
       </p>
 
       <label class="fld" for="curl">Create-task cURL</label>
