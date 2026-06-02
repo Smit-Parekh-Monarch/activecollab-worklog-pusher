@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Work-log Pusher · Monarch</title>
+
+<!-- Ionicons — same icon set as the Monarch app -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.js"></script>
+
+<style>
+  :root {
+    /* Monarch / NINE09 light theme tokens */
+    --bg:            #F0F4F8;
+    --surface:       #F1F5F9;
+    --card:          #FFFFFF;
+    --text:          #0D1526;
+    --text2:         #475569;
+    --text3:         #94A3B8;
+    --border:        #E2E8F0;
+    --border-strong: #CBD5E1;
+
+    --primary:       #18B6D9;
+    --primary-hover: #17A8CC;
+    --primary-light: #ECFEFF;
+    --primary-dark:  #0E7490;
+
+    --success:       #16A34A;
+    --success-light: #F0FDF4;
+    --error:         #DC2626;
+    --error-light:   #FEF2F2;
+    --warning:       #D97706;
+    --warning-light: #FFFBEB;
+
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --shadow-sm: 0 1px 2px rgba(13,21,38,.04), 0 1px 3px rgba(13,21,38,.06);
+    --shadow-md: 0 4px 12px rgba(13,21,38,.06), 0 2px 4px rgba(13,21,38,.04);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  ion-icon { pointer-events: none; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 24px 80px; }
+
+  /* ── Top bar ── */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .topnav {
+    display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+    background: #fff; border: 1px solid var(--border-strong); color: var(--text2);
+    border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 700;
+    box-shadow: var(--shadow-sm); transition: border-color .15s, color .15s, background .15s;
+  }
+  .topnav:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
+  .topnav ion-icon { font-size: 16px; }
+  .brand-tile {
+    width: 42px; height: 42px; border-radius: 12px; flex: none;
+    background: linear-gradient(150deg, #5FD3EE 0%, var(--primary) 55%, var(--primary-dark) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px; box-shadow: var(--shadow-md);
+  }
+  .brand-text h1 { font-size: 21px; font-weight: 800; letter-spacing: -.4px; margin: 0; }
+  .brand-text .tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text3); margin: 0;
+  }
+  .lede {
+    color: var(--text2); margin: 14px 0 26px; font-size: 14.5px; max-width: 620px;
+  }
+  .lede b { color: var(--text); font-weight: 700; }
+  .flow {
+    display: inline-flex; align-items: center; gap: 8px; flex-wrap: nowrap; white-space: nowrap;
+    max-width: 100%; overflow-x: auto;
+    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 14px; box-shadow: var(--shadow-sm); font-size: 12.5px; font-weight: 600; color: var(--text2);
+  }
+  .flow span { white-space: nowrap; }
+  .flow .arr { color: var(--text3); font-size: 13px; }
+  .flow b { color: var(--primary-dark); font-weight: 700; }
+
+  /* ── Step cards ── */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 24px; }
+  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm);
+  }
+  .card-head { display: flex; align-items: center; gap: 11px; margin-bottom: 4px; }
+  .step-no {
+    width: 26px; height: 26px; border-radius: 8px; flex: none;
+    background: var(--primary-light); color: var(--primary-dark);
+    border: 1px solid #BAEAF4;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+  }
+  .card-head h2 { font-size: 15.5px; font-weight: 700; margin: 0; letter-spacing: -.2px; white-space: nowrap; }
+  .card-sub { color: var(--text3); font-size: 12.5px; margin: 2px 0 14px 37px; }
+  .card-sub code { font-family: var(--mono); color: var(--primary-dark); background: var(--primary-light); padding: 1px 5px; border-radius: 5px; font-size: 11.5px; }
+
+  label.fld { display: block; font-weight: 700; font-size: 12px; color: var(--text2); margin: 0 0 6px; }
+
+  textarea, input, select {
+    width: 100%; background: var(--surface); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: 10px; padding: 11px 12px;
+    font-family: var(--mono); font-size: 12.5px; transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  select { font-family: var(--font); font-size: 13px; padding: 10px 12px; cursor: pointer; }
+  textarea { resize: vertical; line-height: 1.55; }
+  textarea::placeholder, input::placeholder { color: var(--text3); }
+  textarea:focus, input:focus, select:focus {
+    outline: none; border-color: var(--primary); background: #fff;
+    box-shadow: 0 0 0 3px rgba(24,182,217,.16);
+  }
+
+  .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; margin-top: 13px; }
+  .fields label.fld { font-size: 11px; }
+  .fields input { font-size: 12.5px; padding: 9px 11px; }
+
+  /* ── Saved work-log file list ── */
+  .fl-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+  .fl-count { font-weight: 600; color: var(--text3); font-size: 11px; margin-left: 4px; }
+  .filelist {
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden auto;
+    max-height: 232px; margin-bottom: 14px; background: var(--card);
+  }
+  .fl-group {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+    color: var(--text3); background: var(--surface); padding: 7px 14px;
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1;
+  }
+  .fl-item {
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px; cursor: pointer;
+    border-bottom: 1px solid var(--border); transition: background .12s;
+  }
+  .fl-item:last-child { border-bottom: 0; }
+  .fl-item:hover { background: #FAFCFE; }
+  .fl-item.sel { background: var(--primary-light); box-shadow: inset 3px 0 0 var(--primary); }
+  .fl-cal {
+    width: 36px; height: 36px; border-radius: 9px; flex: none; font-size: 18px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; color: var(--primary-dark);
+  }
+  .fl-item.sel .fl-cal { background: #fff; border-color: var(--primary); }
+  .fl-main { flex: 1; min-width: 0; }
+  .fl-date { font-weight: 700; font-size: 13px; color: var(--text); }
+  .fl-meta { font-size: 11.5px; color: var(--text3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fl-meta b { color: var(--text2); font-weight: 700; }
+  .fl-meta .fname { opacity: .75; font-family: var(--mono); font-size: 10.5px; }
+  .fl-bad { color: var(--error); font-weight: 700; }
+  .fl-go { color: var(--text3); font-size: 16px; flex: none; }
+  .fl-item.sel .fl-go { color: var(--primary); }
+  .fl-empty { padding: 26px 16px; text-align: center; color: var(--text3); font-size: 12.5px; }
+  .fl-empty ion-icon { font-size: 26px; display: block; margin: 0 auto 8px; color: var(--border-strong); }
+  .fl-empty code { font-family: var(--mono); color: var(--primary-dark); background: var(--primary-light); padding: 1px 5px; border-radius: 5px; }
+
+  /* ── Buttons ── */
+  .btnrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  button {
+    font-family: var(--font); border: 0; border-radius: 10px; cursor: pointer;
+    font-weight: 700; font-size: 13.5px; padding: 10px 16px;
+    display: inline-flex; align-items: center; gap: 7px; transition: background .15s, transform .05s, box-shadow .15s;
+  }
+  button ion-icon { font-size: 16px; }
+  button:active { transform: translateY(1px); }
+  button.primary { background: var(--primary); color: #fff; box-shadow: var(--shadow-sm); }
+  button.primary:hover { background: var(--primary-hover); }
+  button.ghost { background: #fff; border: 1px solid var(--border-strong); color: var(--text2); }
+  button.ghost:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
+  button.link {
+    background: none; padding: 4px 2px; color: var(--primary-dark); font-size: 12.5px; font-weight: 600;
+  }
+  button.link:hover { text-decoration: underline; }
+  button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* ── Inline messages & chips ── */
+  .msg { font-size: 12.5px; font-weight: 600; min-height: 16px; display: inline-flex; align-items: center; gap: 5px; }
+  .msg.err { color: var(--error); }
+  .msg.ok { color: var(--success); }
+  .msg ion-icon { font-size: 15px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 700;
+    background: var(--surface); border: 1px solid var(--border); color: var(--text2);
+  }
+  .chip ion-icon { font-size: 14px; }
+  .chip.ok { background: var(--success-light); border-color: #BBF7D0; color: var(--success); }
+  .chip.miss { background: var(--error-light); border-color: #FECACA; color: var(--error); }
+  .chip .k { color: var(--text3); font-weight: 600; }
+  .chip.ok .k, .chip.miss .k { color: inherit; opacity: .75; }
+
+  /* ── Review / push card ── */
+  .review { margin-top: 18px; }
+  .review-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .review-head .left { display: flex; align-items: center; gap: 11px; }
+  .rh-right { display: flex; align-items: center; gap: 12px; }
+  .totals { font-size: 12.5px; color: var(--text2); font-weight: 600; }
+  .totals b { color: var(--primary-dark); }
+
+  .tablewrap { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; padding: 11px 14px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px; color: var(--text3);
+    background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: #FAFCFE; }
+  .idx { color: var(--text3); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tname { max-width: 360px; }
+  .tname-input {
+    border: 1px solid transparent; background: transparent; font-family: var(--font);
+    font-weight: 600; color: var(--text); padding: 4px 6px; font-size: 13px; border-radius: 7px;
+  }
+  .tname-input:hover { border-color: var(--border); }
+  .tname-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(24,182,217,.16); }
+  .tname .bodyhint { display: block; font-weight: 600; color: var(--text2); font-size: 11.5px; margin: 4px 0 0 6px; }
+  .tname .sumhint { display: block; font-weight: 400; color: var(--text3); font-size: 11px; margin: 2px 0 0 6px; line-height: 1.45; white-space: pre-wrap; }
+  td.col-date { width: 138px; } td.col-hours { width: 96px; } td.col-status { width: 230px; } td.col-act { width: 92px; }
+  td input { padding: 7px 9px; font-size: 12.5px; }
+  .rowacts { display: flex; gap: 4px; align-items: center; justify-content: flex-end; }
+  .rowpush, .delbtn { background: none; border: 0; padding: 5px; border-radius: 8px; cursor: pointer; display: inline-flex; }
+  .rowpush { color: var(--primary-dark); }
+  .rowpush:hover { background: var(--primary-light); }
+  .rowpush:disabled { color: var(--text3); background: none; cursor: not-allowed; opacity: .5; }
+  .delbtn { color: var(--text3); }
+  .delbtn:hover { color: var(--error); background: var(--error-light); }
+  .rowpush ion-icon, .delbtn ion-icon { font-size: 17px; }
+
+  /* status pills inside table */
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+  }
+  .pill.ok { background: var(--success-light); color: var(--success); }
+  .pill.err { background: var(--error-light); color: var(--error); }
+  .pill.run { background: var(--primary-light); color: var(--primary-dark); }
+  .pill.wait { background: var(--surface); color: var(--text3); }
+  .pill ion-icon { font-size: 13px; }
+  .steps { display: flex; gap: 12px; font-size: 11px; color: var(--text3); margin-top: 6px; font-weight: 600; }
+  .steps span { display: inline-flex; align-items: center; gap: 4px; }
+  .steps b.ok { color: var(--success); } .steps b.err { color: var(--error); } .steps b.run { color: var(--primary-dark); }
+  details { margin-top: 7px; }
+  summary { cursor: pointer; color: var(--error); font-size: 11.5px; font-weight: 600; }
+  pre {
+    white-space: pre-wrap; word-break: break-all; color: var(--error);
+    font-family: var(--mono); font-size: 11px; margin: 6px 0 0;
+    background: var(--error-light); border: 1px solid #FECACA; border-radius: 8px; padding: 8px 10px;
+  }
+
+  .pushbar {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+
+  /* ── Confirmation modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 50; padding: 20px;
+    background: rgba(13, 21, 38, .45); backdrop-filter: blur(2px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    box-shadow: var(--shadow-md); max-width: 460px; width: 100%; padding: 22px;
+    animation: pop .12s ease-out;
+  }
+  @keyframes pop { from { transform: scale(.96); opacity: .4; } to { transform: scale(1); opacity: 1; } }
+  .modal-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .modal-icon {
+    width: 40px; height: 40px; border-radius: 11px; flex: none; font-size: 20px;
+    background: var(--primary-light); color: var(--primary-dark);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal h3 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.3px; }
+  .modal-body { color: var(--text2); font-size: 13.5px; line-height: 1.55; margin-bottom: 18px; }
+  .modal-body b { color: var(--text); font-weight: 700; }
+  .modal-body .mlist {
+    margin-top: 12px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 12px; max-height: 168px; overflow: auto;
+    font-size: 12.5px; color: var(--text2);
+  }
+  .modal-body .mlist div { padding: 3px 0; border-bottom: 1px solid var(--border); }
+  .modal-body .mlist div:last-child { border-bottom: 0; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-tile"><ion-icon name="cloud-upload-outline"></ion-icon></div>
+      <div class="brand-text">
+        <p class="tag">Monarch Innovation</p>
+        <h1>Work-log Pusher</h1>
+      </div>
+    </div>
+    <a class="topnav" href="/figma" target="_blank" rel="noopener"><ion-icon name="grid-outline"></ion-icon>Figma changes</a>
+  </div>
+
+  <p class="lede">
+    Turn the work-log JSON into ActiveCollab entries in one go. For each task it
+    <b>creates the task</b>, <b>logs the hours</b>, then <b>marks it complete</b>.
+  </p>
+
+  <div class="flow">
+    <ion-icon name="link-outline" style="color:var(--primary-dark)"></ion-icon>
+    <span>Paste <b>curl</b></span>
+    <span class="arr">→</span>
+    <span>Pick / paste <b>JSON</b></span>
+    <span class="arr">→</span>
+    <span>Review</span>
+    <span class="arr">→</span>
+    <span>Push</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- STEP 1 -->
+    <div class="card">
+      <div class="card-head">
+        <span class="step-no">1</span>
+        <h2>Connect session</h2>
+      </div>
+      <p class="card-sub">
+        In ActiveCollab → DevTools → Network, find a <code>POST …/tasks</code> request,
+        right-click → <b>Copy as cURL</b>, then paste it below. Saved across refreshes.
+      </p>
+
+      <label class="fld" for="curl">Create-task cURL</label>
+      <textarea id="curl" rows="8" placeholder="curl 'http://192.168.200.198/activecollab/api/v1/projects/6070/tasks' -H ... -b '...' --data-raw '{&quot;task_list_id&quot;:32330,...}'"></textarea>
+
+      <div class="fields">
+        <div><label class="fld">Base URL</label><input id="base" value="http://192.168.200.198/activecollab/api/v1" placeholder="http://host/activecollab/api/v1" /></div>
+        <div><label class="fld">Your user ID</label><input id="userId" value="748" placeholder="748" /></div>
+        <div><label class="fld">Project ID</label><input id="projectId" value="6070" /></div>
+        <div><label class="fld">Task list ID</label><input id="taskListId" value="32330" /></div>
+      </div>
+
+      <div class="btnrow">
+        <button class="primary" id="parseBtn"><ion-icon name="flash-outline"></ion-icon>Parse cURL</button>
+        <button class="ghost" id="saveSessionBtn"><ion-icon name="bookmark-outline"></ion-icon>Save session</button>
+        <button class="link" id="forgetSessionBtn">Forget</button>
+        <span class="msg" id="parseMsg"></span>
+      </div>
+      <div class="chips" id="authChips"></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="card">
+      <div class="card-head">
+        <span class="step-no">2</span>
+        <h2>Choose the work-log</h2>
+      </div>
+      <p class="card-sub">
+        Pick a saved file from the project folder, or paste an array of
+        <code>{ name, date, hours, body?, summary? }</code>. Hours accept <code>"HH:MM"</code> or a decimal.
+      </p>
+
+      <div class="fl-head">
+        <label class="fld" style="margin:0;">Saved work-logs<span class="fl-count" id="flCount"></span></label>
+        <button class="link" id="reloadBtn"><ion-icon name="refresh-outline" style="vertical-align:-2px"></ion-icon> Refresh</button>
+      </div>
+      <div class="filelist" id="fileList"></div>
+
+      <label class="fld" for="json">Work-log JSON
+        <button class="link" id="sampleBtn" style="float:right; margin-top:-2px;"><ion-icon name="sparkles-outline" style="vertical-align:-2px"></ion-icon> Load sample</button>
+      </label>
+      <textarea id="json" rows="10" spellcheck="false" placeholder='[
+  {
+    "name": "Custom CRM Page — Setup, Hero & Overview",
+    "date": "2026-06-02",
+    "hours": "03:30",
+    "body": "Setup, Hero & Overview",
+    "summary": "- Scaffolded route\n- Built Hero & Overview"
+  }
+]'></textarea>
+
+      <div class="btnrow">
+        <button class="primary" id="previewBtn"><ion-icon name="eye-outline"></ion-icon>Preview tasks</button>
+        <button class="ghost" id="addTaskBtn"><ion-icon name="add-outline"></ion-icon>Add task</button>
+        <button class="ghost" id="formatBtn"><ion-icon name="code-slash-outline"></ion-icon>Format</button>
+        <button class="ghost" id="copyPromptBtn"><ion-icon name="clipboard-outline"></ion-icon>Copy prompt</button>
+        <span class="msg" id="previewMsg"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card review" id="previewCard" style="display:none">
+    <div class="review-head">
+      <div class="left">
+        <span class="step-no">3</span>
+        <h2 style="font-size:15.5px;font-weight:700;margin:0;">Review &amp; push</h2>
+      </div>
+      <div class="rh-right">
+        <span class="totals" id="totals"></span>
+        <button class="ghost" id="addTaskBtn2"><ion-icon name="add-outline"></ion-icon>Add task</button>
+      </div>
+    </div>
+    <p class="card-sub" style="margin-left:37px;margin-bottom:0;">Name, date and hours are editable — fix anything before pushing.</p>
+
+    <div class="tablewrap">
+      <table id="taskTable">
+        <thead><tr>
+          <th style="width:48px;">#</th>
+          <th>Task name</th>
+          <th class="col-date">Date</th>
+          <th class="col-hours">Hours</th>
+          <th class="col-status">Status</th>
+          <th class="col-act"></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="pushbar">
+      <button class="primary" id="pushBtn"><ion-icon name="rocket-outline"></ion-icon>Push to ActiveCollab</button>
+      <span class="msg" id="pushMsg"></span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confirmation modal -->
+<div class="modal-overlay" id="confirmModal" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-icon"><ion-icon name="rocket-outline"></ion-icon></div>
+      <h3 id="cmTitle">Confirm push</h3>
+    </div>
+    <div class="modal-body" id="cmBody"></div>
+    <div class="modal-actions">
+      <button class="ghost" id="cmCancel"><ion-icon name="close-outline"></ion-icon>Cancel</button>
+      <button class="primary" id="cmOk"><ion-icon name="rocket-outline"></ion-icon>Yes, push</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+/* ---------- curl parsing ---------- */
+// grab the value after a curl flag, whether quoted with ' or "
+function grabQuoted(s, flag) {
+  let m = s.match(new RegExp(flag + "\\s+'([^']*)'"));
+  if (m) return m[1];
+  m = s.match(new RegExp(flag + '\\s+"((?:[^"\\\\]|\\\\.)*)"'));
+  if (m) return m[1].replace(/\\"/g, '"');
+  return '';
+}
+function parseCurl(curl) {
+  const urlM = curl.match(/(https?:\/\/[^\s'"]+)/);
+  const url = urlM ? urlM[1] : '';
+  const projectId = (url.match(/\/projects\/(\d+)/) || curl.match(/\/projects\/(\d+)/) || [])[1] || '';
+  let base = (url.match(/^(https?:\/\/.*\/api\/v\d+)/) || [])[1] || '';
+  if (!base) base = (url.match(/^(https?:\/\/.*?)\/projects\//) || [])[1] || '';
+  const cookie = grabQuoted(curl, '(?:-b|--cookie)');
+  const csrf = ((curl.match(/X-Angie-CsrfValidator:\s*([^'"\n]+)/) || [])[1] || '').trim();
+  const taskListId = (curl.match(/"task_list_id"\s*:\s*(\d+)/) || [])[1] || '';
+  const userId = (curl.match(/"user_id"\s*:\s*(\d+)/) || [])[1] || '';
+  return { base, projectId, cookie, csrf, taskListId, userId };
+}
+
+let parsed = {};
+function doParse(opts) {
+  opts = opts || {};
+  const c = $('curl').value.trim();
+  if (!c) { if (!opts.silent) { setMsg('parseMsg', 'Paste a cURL first.', 'err'); $('authChips').innerHTML = ''; } return; }
+  parsed = parseCurl(c);
+  if (parsed.base) $('base').value = parsed.base;
+  if (parsed.projectId) $('projectId').value = parsed.projectId;
+  if (parsed.taskListId) $('taskListId').value = parsed.taskListId;
+  if (parsed.userId) $('userId').value = parsed.userId;
+  const missing = refreshAuthChips();
+  if (missing.length) setMsg('parseMsg', 'Missing ' + missing.length + ' field' + (missing.length > 1 ? 's' : '') + ' — see below', 'err');
+  else setMsg('parseMsg', opts.silent ? 'Session auto-saved' : 'Session captured', 'ok');
+  saveState();
+}
+$('parseBtn').onclick = () => doParse();
+
+// only the cookie + CSRF MUST come from the curl; base/project/task-list can stay on defaults
+function computeMissing() {
+  const missing = [];
+  if (!parsed.cookie) missing.push('cookie (-b)');
+  if (!parsed.csrf) missing.push('X-Angie-CsrfValidator');
+  if (!$('base').value.trim()) missing.push('base URL');
+  if (!$('projectId').value.trim()) missing.push('project id');
+  if (!$('taskListId').value.trim()) missing.push('task list id');
+  return missing;
+}
+function refreshAuthChips() {
+  const missing = computeMissing();
+  renderAuthChips(missing);
+  return missing;
+}
+function renderAuthChips(missing) {
+  const has = (k) => !missing.some(m => m.startsWith(k));
+  const chip = (cls, icon, label, val) =>
+    '<span class="chip ' + cls + '"><ion-icon name="' + icon + '"></ion-icon>' + label +
+    (val ? ' <span class="k">' + escapeHtml(val) + '</span>' : '') + '</span>';
+  const ic = (ok) => ok ? 'checkmark-circle' : 'alert-circle';
+  const cl = (ok) => ok ? 'ok' : 'miss';
+  let html = '';
+  html += chip(cl(has('cookie')), ic(has('cookie')), 'Cookie');
+  html += chip(cl(has('X-Angie')), ic(has('X-Angie')), 'CSRF token');
+  html += chip(cl(has('project')), ic(has('project')), 'Project', $('projectId').value.trim());
+  html += chip(cl(has('task list')), ic(has('task list')), 'Task list', $('taskListId').value.trim());
+  $('authChips').innerHTML = html;
+}
+
+/* ---------- JSON parsing ---------- */
+function parseHours(v) {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') {
+    if (v.includes(':')) { const [h, m] = v.split(':').map(Number); return +(h + (m || 0) / 60).toFixed(2); }
+    return parseFloat(v) || 0;
+  }
+  return 0;
+}
+function normTasks(json) {
+  const arr = Array.isArray(json) ? json : (json.tasks || []);
+  return arr.map(t => ({
+    name: t.name || t.title || '',
+    date: t.date || t.record_date || '',
+    hours: parseHours(t.hours ?? t.duration ?? t.time ?? 0),
+    summary: t.summary || '',
+    body: t.body || t.description || '',
+  }));
+}
+
+const SAMPLE = [
+  {
+    "name": "Custom CRM Page — Setup, Hero & Overview",
+    "date": "2026-06-02",
+    "hours": "03:30",
+    "body": "Setup, Hero & Overview",
+    "summary": "- Scaffolded the page route, dictionary, and nav entry for the CRM page\n- Built the Hero and Overview sections from Figma\n- Added the hero-bg and overview SVG illustrations"
+  },
+  {
+    "name": "Custom CRM Page — Services & Process Sections",
+    "date": "2026-06-02",
+    "hours": "02:30",
+    "body": "Services & Process sections",
+    "summary": "- Built the Services section with cards and content\n- Built the Process section step layout\n- Applied design-system tokens and responsive styling"
+  },
+  {
+    "name": "Custom CRM Page — Tech, FAQ & CTA Sections",
+    "date": "2026-06-02",
+    "hours": "02:33",
+    "body": "Tech, FAQ & CTA sections",
+    "summary": "- Built the Tech/technologies section\n- Built the FAQ accordion section\n- Built the closing CTA banner and verified the full page"
+  }
+];
+
+$('sampleBtn').onclick = () => {
+  $('json').value = JSON.stringify(SAMPLE, null, 2);
+  saveState();
+  setMsg('previewMsg', 'Sample loaded — click Preview', 'ok');
+};
+
+$('formatBtn').onclick = () => {
+  const raw = $('json').value.trim();
+  if (!raw) { setMsg('previewMsg', 'Nothing to format.', 'err'); return; }
+  try { $('json').value = JSON.stringify(JSON.parse(raw), null, 2); saveState(); setMsg('previewMsg', 'Formatted', 'ok'); }
+  catch (e) { setMsg('previewMsg', 'Invalid JSON: ' + e.message, 'err'); }
+};
+
+/* ---------- copy a ready-made prompt for Claude web ---------- */
+const PROMPT = [
+  'Turn the work I describe below into a work-log JSON for my ActiveCollab Work-log Pusher.',
+  '',
+  'Output ONLY a valid JSON array — one object per task — in EXACTLY this shape (no markdown fences, no commentary):',
+  '',
+  '[',
+  '  {',
+  '    "name": "Short task title",',
+  '    "date": "YYYY-MM-DD",',
+  '    "hours": "HH:MM",',
+  '    "body": "Short one-line label for the task",',
+  '    "summary": "- bullet of what was done\\n- another bullet"',
+  '  }',
+  ']',
+  '',
+  'Rules:',
+  '- name: a concise task title.',
+  '- date: the work date as YYYY-MM-DD.',
+  '- hours: time spent as "HH:MM" (e.g. "02:30") or a decimal number.',
+  '- body: a short one-line label (becomes the task description).',
+  '- summary: a detailed bullet list of what was done (use \\n between bullets; becomes the time-record note).',
+  '- One object per task. Output ONLY the JSON array.',
+  '',
+  'My work and hours:',
+  '(describe your tasks, the date, and how many hours each took)',
+].join('\n');
+
+$('copyPromptBtn').onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(PROMPT);
+    setMsg('previewMsg', 'Prompt copied — paste it into Claude with your work & hours', 'ok');
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = PROMPT; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); setMsg('previewMsg', 'Prompt copied', 'ok'); }
+    catch { setMsg('previewMsg', 'Could not copy — select the JSON box and copy manually', 'err'); }
+    ta.remove();
+  }
+};
+
+let tasks = [];
+$('previewBtn').onclick = () => {
+  let json;
+  try { json = JSON.parse($('json').value); }
+  catch (e) { setMsg('previewMsg', 'Invalid JSON: ' + e.message, 'err'); return; }
+  tasks = normTasks(json);
+  if (!tasks.length) { setMsg('previewMsg', 'No tasks found in JSON.', 'err'); return; }
+  renderTable();
+  $('previewCard').style.display = 'block';
+  setMsg('previewMsg', tasks.length + ' task(s) ready', 'ok');
+  updateTotals();
+};
+
+function addBlankTask() {
+  tasks.push({ name: '', date: '', hours: 0, summary: '', body: '' });
+  renderTable();
+  $('previewCard').style.display = 'block';
+  updateTotals();
+}
+$('addTaskBtn').onclick = addBlankTask;
+$('addTaskBtn2').onclick = addBlankTask;
+
+function updateTotals() {
+  const total = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
+  const h = Math.floor(total), m = Math.round((total - h) * 60);
+  $('totals').innerHTML = '<b>' + tasks.length + '</b> task' + (tasks.length === 1 ? '' : 's') +
+    ' &nbsp;·&nbsp; <b>' + total.toFixed(2) + 'h</b> (' + h + 'h ' + (m ? m + 'm' : '00m') + ')';
+}
+
+function renderTable() {
+  const tb = $('taskTable').querySelector('tbody');
+  tb.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const tr = document.createElement('tr');
+    const bodyHint = t.body ? '<span class="bodyhint">' + escapeHtml(t.body.split('\n')[0].slice(0, 80)) + (t.body.length > 80 ? '…' : '') + '</span>' : '';
+    const sumFull = (t.summary || '').trim();
+    const sumShort = sumFull.replace(/\s*\n\s*/g, '  ·  ').slice(0, 130);
+    const sumHint = sumFull ? '<span class="sumhint" title="' + escapeAttr(sumFull) + '">' + escapeHtml(sumShort) + (sumFull.length > 130 ? '…' : '') + '</span>' : '';
+    tr.innerHTML =
+      '<td class="idx">' + String(i + 1).padStart(2, '0') + '</td>' +
+      '<td class="tname"><input class="tname-input" data-i="' + i + '" data-f="name" value="' + escapeAttr(t.name) + '" placeholder="Task name" />' + bodyHint + sumHint + '</td>' +
+      '<td class="col-date"><input data-i="' + i + '" data-f="date" value="' + escapeAttr(t.date) + '" placeholder="YYYY-MM-DD" /></td>' +
+      '<td class="col-hours"><input data-i="' + i + '" data-f="hours" value="' + t.hours + '" /></td>' +
+      '<td class="col-status" id="status-' + i + '"><span class="pill wait"><ion-icon name="ellipse-outline"></ion-icon>waiting</span></td>' +
+      '<td class="col-act"><div class="rowacts">' +
+        '<button class="rowpush" data-push="' + i + '" title="Push only this task"><ion-icon name="rocket-outline"></ion-icon></button>' +
+        '<button class="delbtn" data-del="' + i + '" title="Remove task"><ion-icon name="trash-outline"></ion-icon></button>' +
+      '</div></td>';
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('input').forEach(inp => {
+    inp.oninput = () => {
+      const i = +inp.dataset.i, f = inp.dataset.f;
+      tasks[i][f] = f === 'hours' ? parseHours(inp.value) : inp.value;
+      if (f === 'hours') updateTotals();
+    };
+  });
+  tb.querySelectorAll('.delbtn').forEach(btn => {
+    btn.onclick = () => {
+      tasks.splice(+btn.dataset.del, 1);
+      if (!tasks.length) { $('previewCard').style.display = 'none'; return; }
+      renderTable(); updateTotals();
+    };
+  });
+  tb.querySelectorAll('.rowpush').forEach(btn => {
+    btn.onclick = () => { const i = +btn.dataset.push; runPush([tasks[i]], [i], btn); };
+  });
+}
+
+/* ---------- push ---------- */
+const rowState = {};
+const allRowPushBtns = () => Array.from(document.querySelectorAll('.rowpush'));
+
+function buildCfg(items) {
+  const cfg = {
+    base: $('base').value.trim(),
+    projectId: $('projectId').value.trim(),
+    taskListId: $('taskListId').value.trim(),
+    cookie: parsed.cookie || '',
+    csrf: parsed.csrf || '',
+    userId: $('userId').value.trim() || '0',
+    tasks: items,
+  };
+  if (!cfg.base || !cfg.projectId || !cfg.taskListId) return { err: 'Parse the cURL first (missing base / project / task list).' };
+  if (!cfg.cookie) return { err: 'No cookie — re-parse your cURL.' };
+  return { cfg };
+}
+
+// confirmation modal — resolves true (push) / false (cancel)
+function confirmPush(title, bodyHtml) {
+  return new Promise(resolve => {
+    $('cmTitle').textContent = title;
+    $('cmBody').innerHTML = bodyHtml;
+    const m = $('confirmModal');
+    m.hidden = false;
+    $('cmOk').focus();
+    const done = (val) => {
+      m.hidden = true;
+      $('cmOk').onclick = null; $('cmCancel').onclick = null; m.onclick = null;
+      document.removeEventListener('keydown', onKey);
+      resolve(val);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') done(false); else if (e.key === 'Enter') done(true); };
+    $('cmOk').onclick = () => done(true);
+    $('cmCancel').onclick = () => done(false);
+    m.onclick = (e) => { if (e.target === m) done(false); }; // click backdrop = cancel
+    document.addEventListener('keydown', onKey);
+  });
+}
+
+// items = task objects to send; map[i] = the real table-row index for the i-th sent item
+async function runPush(items, map) {
+  if (!items.length) return;
+
+  // confirm before doing anything (push creates real ActiveCollab entries)
+  let title, body;
+  if (items.length === 1) {
+    const t = items[0];
+    title = 'Push this task?';
+    body = 'This will <b>create the task</b>, <b>log ' + (Number(t.hours) || 0) + 'h</b>, and <b>mark it complete</b> in ActiveCollab:' +
+      '<div class="mlist"><div>' + escapeHtml(t.name || '(no name)') + ' — ' + escapeHtml(t.date || 'no date') + ' · ' + (Number(t.hours) || 0) + 'h</div></div>';
+  } else {
+    const total = items.reduce((s, t) => s + (Number(t.hours) || 0), 0);
+    title = 'Push ' + items.length + ' tasks?';
+    body = 'For <b>each</b> task this will create it, log its hours, and mark it complete in ActiveCollab.<br><br>Total: <b>' + items.length + ' tasks · ' + total.toFixed(2) + 'h</b>' +
+      '<div class="mlist">' + items.map(t => '<div>• ' + escapeHtml(t.name || '(no name)') + ' — ' + escapeHtml(t.date || '') + ' · ' + (Number(t.hours) || 0) + 'h</div>').join('') + '</div>';
+  }
+  if (!await confirmPush(title, body)) { setMsg('pushMsg', 'Cancelled', ''); return; }
+
+  const { cfg, err } = buildCfg(items);
+  if (err) { setMsg('pushMsg', err, 'err'); return; }
+
+  $('pushBtn').disabled = true;
+  allRowPushBtns().forEach(b => b.disabled = true);
+  setMsg('pushMsg', 'Pushing ' + items.length + ' task' + (items.length > 1 ? 's' : '') + '…', '');
+  map.forEach(ri => { rowState[ri] = { create: '', time: '', complete: '' }; updateStatus(ri, 'run'); });
+
+  try {
+    const res = await fetch('/api/push', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg),
+    });
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n')) !== -1) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        const ev = JSON.parse(line);
+        if (ev.done) { if (ev.error) setMsg('pushMsg', ev.error, 'err'); continue; }
+        ev.idx = map[ev.idx]; // translate sent-index → real row index
+        handleEvent(ev);
+      }
+    }
+    setMsg('pushMsg', 'Done', 'ok');
+  } catch (e) {
+    setMsg('pushMsg', 'Push failed: ' + e.message, 'err');
+  } finally {
+    $('pushBtn').disabled = false;
+    // re-enable row buttons, but keep already-completed rows disabled (avoid duplicate pushes)
+    allRowPushBtns().forEach(b => { b.disabled = (rowState[+b.dataset.push] || {}).complete === 'ok'; });
+  }
+}
+
+$('pushBtn').onclick = () => runPush(tasks, tasks.map((_, i) => i));
+
+function handleEvent(ev) {
+  if (ev.done) { if (ev.error) setMsg('pushMsg', ev.error, 'err'); return; }
+  const s = rowState[ev.idx] || (rowState[ev.idx] = { create: '', time: '', complete: '' });
+  if (ev.step === 'fatal') { s.create = s.create || 'err'; updateStatus(ev.idx, 'err', ev.detail); return; }
+  if (ev.status === 'start') { s[ev.step] = 'run'; }
+  else if (ev.status === 'ok') { s[ev.step] = 'ok'; }
+  else if (ev.status === 'error') { s[ev.step] = 'err'; }
+  const overall = Object.values(s).includes('err') ? 'err'
+    : (s.complete === 'ok' ? 'ok' : 'run');
+  const detail = ev.status === 'error' ? ('[' + (ev.code || '') + '] ' + (ev.detail || '')) : '';
+  updateStatus(ev.idx, overall, detail);
+}
+
+function updateStatus(i, overall, detail) {
+  const s = rowState[i] || {};
+  const cell = $('status-' + i);
+  if (!cell) return;
+  const meta = {
+    ok:   { lbl: 'done',    icon: 'checkmark-circle' },
+    err:  { lbl: 'error',   icon: 'close-circle' },
+    run:  { lbl: 'working', icon: 'sync-outline' },
+    wait: { lbl: 'waiting', icon: 'ellipse-outline' },
+  }[overall] || { lbl: 'waiting', icon: 'ellipse-outline' };
+  const dot = (st) => '<b class="' + (st || '') + '">' + (st === 'ok' ? '✓' : st === 'err' ? '✗' : st === 'run' ? '…' : '·') + '</b>';
+  let html = '<span class="pill ' + overall + '"><ion-icon name="' + meta.icon + '"></ion-icon>' + meta.lbl + '</span>' +
+    '<div class="steps"><span>create ' + dot(s.create) + '</span><span>time ' + dot(s.time) + '</span><span>complete ' + dot(s.complete) + '</span></div>';
+  if (detail) html += '<details><summary>error detail</summary><pre>' + escapeHtml(detail) + '</pre></details>';
+  cell.innerHTML = html;
+}
+
+/* ---------- persistence (survives refresh) ---------- */
+const LS_KEY = 'ac_pusher_state_v1';
+function saveState() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      curl: $('curl').value, base: $('base').value, projectId: $('projectId').value,
+      taskListId: $('taskListId').value, userId: $('userId').value, json: $('json').value, parsed,
+    }));
+  } catch {}
+}
+function loadState() {
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch {}
+  if (s.curl) $('curl').value = s.curl;
+  if (s.base) $('base').value = s.base;
+  if (s.projectId) $('projectId').value = s.projectId;
+  if (s.taskListId) $('taskListId').value = s.taskListId;
+  if (s.userId) $('userId').value = s.userId;
+  if (s.json) $('json').value = s.json;
+  if (s.parsed && (s.parsed.cookie || s.parsed.csrf)) {
+    parsed = s.parsed;
+    refreshAuthChips();
+    setMsg('parseMsg', 'Session restored', 'ok');
+  }
+}
+$('saveSessionBtn').onclick = () => { saveState(); setMsg('parseMsg', 'Session saved', 'ok'); };
+$('forgetSessionBtn').onclick = () => {
+  try { localStorage.removeItem(LS_KEY); } catch {}
+  parsed = {}; $('authChips').innerHTML = '';
+  setMsg('parseMsg', 'Session forgotten', 'ok');
+};
+['curl', 'base', 'projectId', 'taskListId', 'userId', 'json'].forEach(id => {
+  $(id).addEventListener('input', saveState);
+});
+// auto-extract + save the cookie/token shortly after you paste — no need to click Parse
+let autoParseTimer = null;
+$('curl').addEventListener('input', () => {
+  clearTimeout(autoParseTimer);
+  autoParseTimer = setTimeout(() => { if ($('curl').value.trim()) doParse({ silent: true }); }, 500);
+});
+
+/* ---------- saved work-log file list ---------- */
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+
+function fmtDate(iso, fallback) {
+  if (iso && /^\d{4}-\d{2}-\d{2}/.test(iso)) {
+    const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return DAYS[dt.getDay()] + ', ' + d + ' ' + MONS[m - 1] + ' ' + y;
+  }
+  return fallback || 'Unknown date';
+}
+function groupLabel(rel) {
+  const parts = rel.split('/');
+  if (parts.length >= 3) return cap(parts[0]) + ' · ' + cap(parts[1].replace(/^week-?/i, 'Week '));
+  if (parts.length === 2) return cap(parts[0]);
+  return 'Files';
+}
+
+let selectedRel = '';
+let lastFilesKey = null;
+let autoSelectedDone = false;
+
+function todayISO() {
+  const d = new Date(), p = (n) => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+// is this file "today"? match by its first task's date, or by a d-m-yyyy filename
+function isTodayFile(f, today) {
+  if (f.date && f.date.slice(0, 10) === today) return true;
+  const [y, m, d] = today.split('-').map(Number);
+  const name = f.rel.split('/').pop().replace(/\.json$/i, '');
+  return name === d + '-' + m + '-' + y;
+}
+
+async function loadFileList(force) {
+  try {
+    const r = await fetch('/api/worklogs');
+    const data = await r.json();
+    const key = data.files.map(f => f.rel + ':' + Math.round(f.mtime)).join('|');
+    if (!force && key === lastFilesKey) return; // nothing changed — don't rebuild
+    lastFilesKey = key;
+    renderFileList(data.files);
+    // on first load only: auto-select today's work-log (if one exists)
+    if (!autoSelectedDone) {
+      autoSelectedDone = true;
+      const today = todayISO();
+      const match = data.files.find(f => isTodayFile(f, today));
+      if (match) selectFile(match.rel);
+    }
+  } catch (e) {
+    if (force) setMsg('previewMsg', 'Could not list folder: ' + e.message, 'err');
+  }
+}
+function renderFileList(files) {
+  const box = $('fileList');
+  $('flCount').textContent = files.length ? '  (' + files.length + ')' : '';
+  if (!files.length) {
+    box.innerHTML = '<div class="fl-empty"><ion-icon name="folder-open-outline"></ion-icon>No work-logs yet. Run <code>/update-stats</code> to create one.</div>';
+    return;
+  }
+  let html = '', curGroup = null;
+  for (const f of files) {
+    const g = groupLabel(f.rel);
+    if (g !== curGroup) { curGroup = g; html += '<div class="fl-group">' + escapeHtml(g) + '</div>'; }
+    const fname = f.rel.split('/').pop();
+    const date = fmtDate(f.date, fname.replace(/\.json$/i, ''));
+    let meta;
+    if (!('valid' in f)) {
+      // server didn't report validity (older server not restarted) — don't judge, just show the file
+      meta = '<span class="fname">' + escapeHtml(fname) + '</span>';
+    } else if (f.valid) {
+      meta = '<b>' + f.count + '</b> task' + (f.count === 1 ? '' : 's') + ' · <b>' + f.hours + 'h</b> · <span class="fname">' + escapeHtml(fname) + '</span>';
+    } else {
+      meta = '<span class="fl-bad">invalid JSON</span> · <span class="fname">' + escapeHtml(fname) + '</span>';
+    }
+    html +=
+      '<div class="fl-item' + (f.rel === selectedRel ? ' sel' : '') + '" data-rel="' + escapeAttr(f.rel) + '">' +
+        '<div class="fl-cal"><ion-icon name="calendar-clear-outline"></ion-icon></div>' +
+        '<div class="fl-main"><div class="fl-date">' + escapeHtml(date) + '</div><div class="fl-meta">' + meta + '</div></div>' +
+        '<ion-icon class="fl-go" name="chevron-forward-outline"></ion-icon>' +
+      '</div>';
+  }
+  box.innerHTML = html;
+  box.querySelectorAll('.fl-item').forEach(el => { el.onclick = () => selectFile(el.dataset.rel); });
+}
+async function selectFile(rel) {
+  selectedRel = rel;
+  $('fileList').querySelectorAll('.fl-item').forEach(el => el.classList.toggle('sel', el.dataset.rel === rel));
+  try {
+    const r = await fetch('/api/worklog?path=' + encodeURIComponent(rel));
+    const txt = await r.text();
+    if (!r.ok) { setMsg('previewMsg', 'Load failed: ' + txt, 'err'); return; }
+    $('json').value = txt;
+    saveState();
+    $('previewBtn').click(); // auto-preview the selected file
+  } catch (e) {
+    setMsg('previewMsg', 'Load failed: ' + e.message, 'err');
+  }
+}
+$('reloadBtn').onclick = () => loadFileList(true);
+window.addEventListener('focus', () => loadFileList(false));
+
+// real-time updates via Server-Sent Events (instant); slow poll as a fallback
+try {
+  const es = new EventSource('/api/events');
+  es.addEventListener('worklogs', () => loadFileList(true)); // a work-log file changed → refresh list now
+  es.addEventListener('reload', () => location.reload());    // page code changed → live reload
+} catch {}
+setInterval(() => loadFileList(false), 15000);
+
+/* ---------- utils ---------- */
+function setMsg(id, text, cls) {
+  const el = $(id);
+  const icon = cls === 'ok' ? '<ion-icon name="checkmark-circle"></ion-icon>'
+    : cls === 'err' ? '<ion-icon name="alert-circle"></ion-icon>' : '';
+  el.innerHTML = icon + '<span>' + escapeHtml(text) + '</span>';
+  el.className = 'msg ' + (cls || '');
+}
+function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
+
+/* ---------- init ---------- */
+loadState();
+loadFileList();
+</script>
+</body>
+</html>

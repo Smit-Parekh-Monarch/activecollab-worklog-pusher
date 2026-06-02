@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Figma Changes — Viewer</title>
+    <style>
+      :root {
+        --bg: #f7f9fc;
+        --card: #ffffff;
+        --border: #e0e6f0;
+        --navy: #00296b;
+        --blue: #327ef8;
+        --muted: #7d8894;
+        --heading: #111827;
+        --ok-bg: #dcfce7;
+        --ok-text: #166534;
+        --pend-bg: #fef3c7;
+        --pend-text: #92400e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--heading);
+        padding: 28px;
+      }
+      .wrap { max-width: 1100px; margin: 0 auto; }
+      header { margin-bottom: 18px; }
+      h1 { font-size: 22px; margin: 0 0 4px; color: var(--navy); }
+      p.sub { margin: 0; color: var(--muted); font-size: 14px; }
+      .toolbar {
+        display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        margin: 16px 0;
+      }
+      input[type="search"] {
+        flex: 1; min-width: 220px; height: 40px; padding: 0 14px;
+        border: 1px solid var(--border); border-radius: 10px; font-size: 14px; background: var(--card);
+      }
+      button {
+        height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--border);
+        background: var(--card); color: var(--navy); font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: all .12s ease;
+      }
+      button:hover { border-color: var(--blue); color: var(--blue); }
+      button.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+      button.primary:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+      .card {
+        background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,41,107,.05);
+      }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      thead th {
+        text-align: left; background: #eff5ff; color: var(--navy); font-size: 12px;
+        text-transform: uppercase; letter-spacing: .5px; padding: 12px 14px; border-bottom: 1px solid var(--border);
+        position: sticky; top: 0;
+      }
+      tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      tbody tr:hover { background: #f7f9fc; }
+      tbody tr:last-child td { border-bottom: none; }
+      td.cell { cursor: copy; }
+      td.cell:hover { background: #eff5ff; }
+      .badge {
+        display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .4px;
+      }
+      .badge.done { background: var(--ok-bg); color: var(--ok-text); }
+      .badge.pending { background: var(--pend-bg); color: var(--pend-text); }
+      .row-copy {
+        height: 30px; padding: 0 10px; font-size: 12px; border-radius: 8px; white-space: nowrap;
+      }
+      .empty { padding: 40px; text-align: center; color: var(--muted); }
+      .filebar { margin-top: 14px; font-size: 13px; color: var(--muted); }
+      .filebar label {
+        color: var(--blue); cursor: pointer; font-weight: 600; text-decoration: underline;
+      }
+      .toast {
+        position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+        background: var(--navy); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px;
+        opacity: 0; transition: opacity .2s ease; pointer-events: none;
+      }
+      .toast.show { opacity: 1; }
+      .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <a href="/" style="display:inline-block;margin-bottom:10px;color:var(--blue);font-size:13px;font-weight:600;text-decoration:none;">&larr; Work-log Pusher</a>
+        <h1>Figma Changes</h1>
+        <p class="sub">Edits & updates to existing pages — copy a row and paste it into Excel.</p>
+      </header>
+
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Filter rows…" />
+        <button id="copyAll" class="primary">Copy all rows</button>
+        <button id="reload">↻ Reload</button>
+      </div>
+
+      <div class="card">
+        <table id="tbl">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+        <div id="empty" class="empty" style="display:none">No CSV loaded.</div>
+      </div>
+
+      <div class="filebar">
+        Auto-loads <code>figma-changes.csv</code> from this folder. If it doesn't load (opened directly as a file),
+        <label for="file">choose the CSV manually</label>.
+        <input id="file" type="file" accept=".csv" style="display:none" />
+        <div class="hint">Tip: click any single cell to copy just that value. Use “Copy” on a row to copy the whole row (tab-separated → pastes across Excel columns).</div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+      const CSV_FILE = 'figma-changes.csv'
+      let headers = []
+      let rows = []
+
+      // --- minimal RFC-4180-ish CSV parser (handles quotes, commas, newlines in quotes) ---
+      function parseCSV(text) {
+        const out = []
+        let row = [], field = '', inQuotes = false
+        for (let i = 0; i < text.length; i++) {
+          const c = text[i]
+          if (inQuotes) {
+            if (c === '"') {
+              if (text[i + 1] === '"') { field += '"'; i++ }
+              else inQuotes = false
+            } else field += c
+          } else {
+            if (c === '"') inQuotes = true
+            else if (c === ',') { row.push(field); field = '' }
+            else if (c === '\n') { row.push(field); out.push(row); row = []; field = '' }
+            else if (c === '\r') { /* skip */ }
+            else field += c
+          }
+        }
+        if (field.length || row.length) { row.push(field); out.push(row) }
+        return out.filter(r => r.length && !(r.length === 1 && r[0].trim() === ''))
+      }
+
+      function render(filter = '') {
+        const thead = document.querySelector('#tbl thead')
+        const tbody = document.querySelector('#tbl tbody')
+        const empty = document.getElementById('empty')
+        thead.innerHTML = ''
+        tbody.innerHTML = ''
+
+        if (!headers.length) { empty.style.display = 'block'; return }
+        empty.style.display = 'none'
+
+        const htr = document.createElement('tr')
+        headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; htr.appendChild(th) })
+        const thAction = document.createElement('th'); thAction.textContent = ''; htr.appendChild(thAction)
+        thead.appendChild(htr)
+
+        const statusIdx = headers.findIndex(h => h.toLowerCase() === 'status')
+        const f = filter.trim().toLowerCase()
+
+        rows.forEach(r => {
+          if (f && !r.join(' ').toLowerCase().includes(f)) return
+          const tr = document.createElement('tr')
+          r.forEach((cell, ci) => {
+            const td = document.createElement('td')
+            td.className = 'cell'
+            if (ci === statusIdx && cell.trim()) {
+              const span = document.createElement('span')
+              const v = cell.trim().toLowerCase()
+              span.className = 'badge ' + (v === 'done' ? 'done' : 'pending')
+              span.textContent = cell.trim()
+              td.appendChild(span)
+            } else {
+              td.textContent = cell
+            }
+            td.title = 'Click to copy this cell'
+            td.onclick = () => copyText(cell, 'Cell copied')
+            tr.appendChild(td)
+          })
+          const tdAct = document.createElement('td')
+          const btn = document.createElement('button')
+          btn.className = 'row-copy'
+          btn.textContent = 'Copy'
+          btn.onclick = (e) => { e.stopPropagation(); copyText(r.join('\t'), 'Row copied (paste into Excel)') }
+          tdAct.appendChild(btn)
+          tr.appendChild(tdAct)
+          tbody.appendChild(tr)
+        })
+      }
+
+      function copyText(text, msg) {
+        const done = () => toast(msg || 'Copied')
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done))
+        } else {
+          fallbackCopy(text, done)
+        }
+      }
+      function fallbackCopy(text, done) {
+        const ta = document.createElement('textarea')
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'
+        document.body.appendChild(ta); ta.select()
+        try { document.execCommand('copy') } catch (e) {}
+        document.body.removeChild(ta); done()
+      }
+
+      let toastTimer
+      function toast(msg) {
+        const t = document.getElementById('toast')
+        t.textContent = msg; t.classList.add('show')
+        clearTimeout(toastTimer)
+        toastTimer = setTimeout(() => t.classList.remove('show'), 1400)
+      }
+
+      function load(text) {
+        const grid = parseCSV(text)
+        if (!grid.length) { headers = []; rows = []; render(); return }
+        headers = grid[0]
+        rows = grid.slice(1)
+        render(document.getElementById('search').value)
+      }
+
+      function autoLoad() {
+        fetch(CSV_FILE)
+          .then(r => { if (!r.ok) throw new Error('not ok'); return r.text() })
+          .then(load)
+          .catch(() => { document.getElementById('empty').textContent =
+            'Could not auto-load figma-changes.csv (open via a server, or choose the file below).'
+            document.getElementById('empty').style.display = 'block' })
+      }
+
+      document.getElementById('search').addEventListener('input', e => render(e.target.value))
+      document.getElementById('reload').addEventListener('click', autoLoad)
+      document.getElementById('copyAll').addEventListener('click', () => {
+        const all = rows.map(r => r.join('\t')).join('\n')
+        copyText(all, 'All data rows copied (paste into Excel)')
+      })
+      document.getElementById('file').addEventListener('change', e => {
+        const file = e.target.files[0]; if (!file) return
+        const reader = new FileReader()
+        reader.onload = () => load(reader.result)
+        reader.readAsText(file)
+      })
+
+      autoLoad()
+
+      // real-time updates: refresh when the CSV changes, reload when the page code changes
+      try {
+        const es = new EventSource('/api/events')
+        es.addEventListener('csv', autoLoad)
+        es.addEventListener('reload', () => location.reload())
+      } catch (e) {}
+    </script>
+  </body>
+</html>

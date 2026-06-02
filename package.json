@@ -1,0 +1,14 @@
+{
+  "name": "activecollab-worklog-pusher",
+  "version": "1.0.0",
+  "description": "Local tool to push Claude-generated work-log JSON into ActiveCollab (create task, log hours, complete).",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --watch server.js",
+    "start:once": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
