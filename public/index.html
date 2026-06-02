@@ -53,7 +53,19 @@ function isTodayFile(w, today) {
 }
 
 const LS_KEY = 'ac_pusher_v2';
-function loadLS() { try { return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); } catch { return {}; } }
+function loadLS() {
+  try {
+    const cur = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+    if (cur && (cur.cookie||cur.csrf)) return cur;
+    // migrate from old key
+    const old = JSON.parse(localStorage.getItem('ac_pusher_state_v1')||'{}');
+    if (old && old.parsed && (old.parsed.cookie||old.parsed.csrf)) {
+      const migrated = { curl:old.curl||'', base:old.base||'', userId:old.userId||'748', projectId:old.projectId||'6070', taskListId:old.taskListId||'32330', cookie:old.parsed.cookie||'', csrf:old.parsed.csrf||'', capturedAt:null };
+      saveLS(migrated); return migrated;
+    }
+    return cur;
+  } catch { return {}; }
+}
 function saveLS(obj) { try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch {} }
 
 const PROMPT = [
@@ -245,6 +257,11 @@ function App() {
   function addRow() { setTasks(ts => [...ts, {name:'', date:tasks[0]?.date||todayISO(), hours:0, summary:'', body:''}]); }
 
   const totalHours = tasks.reduce((s,t) => s+(Number(t.hours)||0), 0);
+  function fmtTotal(dec) {
+    const total = Math.round(dec * 60);
+    const h = Math.floor(total/60), m = total%60;
+    return h+'h'+(m?' '+m+'m':'');
+  }
   const allDone    = tasks.length>0 && tasks.every((_,i) => (status[i]||{}).complete==='ok');
 
   /* -- real push -- */
@@ -495,7 +512,8 @@ function App() {
               <span className="totchip"><b className="tnum">{tasks.length}</b> task{tasks.length===1?'':'s'}</span>
               <span className="totchip">
                 <ion-icon name="time-outline" style={{color:'var(--primary-dark)'}}></ion-icon>
-                <b className="tnum">{totalHours.toFixed(2)}h</b>
+                <b className="tnum">{fmtTotal(totalHours)}</b>
+                <span style={{color:'var(--text3)',fontWeight:600,fontSize:11.5}}>({totalHours.toFixed(2)}h)</span>
               </span>
               <button className="btn btn-ghost" onClick={addRow} disabled={pushing}>
                 <ion-icon name="add-outline"></ion-icon>Add task
