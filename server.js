@@ -15,12 +15,11 @@ app.use(express.static(join(STATIC_ROOT, 'public')));
 app.use('/figma', express.static(join(STATIC_ROOT, 'csv-figmachanegs')));
 
 const PORT = process.env.PORT || 5050;
-// Folder the UI lists work-log JSON files from (the /update-stats command writes here).
-// Defaults to this project folder; override with WORKLOG_DIR env var if needed.
-const WORKLOG_DIR = process.env.WORKLOG_DIR || __dirname;
-// App's own files/dirs to hide from the work-log dropdown.
-const IGNORE_DIRS = new Set(['node_modules', '.git', '.claude', 'public', '.playwright-mcp', 'screenshots', 'csv-figmachanegs']);
-const IGNORE_FILES = new Set(['package.json', 'package-lock.json']);
+// Dedicated folder for work-log JSONs (month/week/date.json structure).
+// Only files inside here appear in the UI dropdown.
+const WORKLOG_DIR = process.env.WORKLOG_DIR || join(__dirname, 'worklogs');
+const IGNORE_DIRS  = new Set(['.git']);   // nothing to hide — it's a dedicated folder
+const IGNORE_FILES = new Set();
 
 /* ---------- cookie jar helpers ---------- */
 function parseCookieString(str) {
