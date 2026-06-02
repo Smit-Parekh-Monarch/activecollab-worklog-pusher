@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Work-log Pusher · Monarch",
+  "version": "1.0",
+  "description": "Quick access to the ActiveCollab Work-log Pusher and Figma Changes viewer.",
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Work-log Pusher",
+    "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "permissions": ["storage", "tabs", "windows"],
+  "host_permissions": [
+    "http://localhost:5050/*",
+    "http://localhost/*"
+  ],
+  "commands": {
+    "open-pusher": {
+      "suggested_key": { "default": "Alt+Shift+W" },
+      "description": "Open Work-log Pusher"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
