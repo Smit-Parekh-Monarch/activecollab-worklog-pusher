@@ -488,7 +488,17 @@ function App() {
                           </span>
                         : <button
                             title="Mark as pushed"
-                            onClick={e=>{e.stopPropagation(); markFileDone(w.rel); toast('Marked as pushed ✓','ok');}}
+                            onClick={async e=>{
+                              e.stopPropagation();
+                              const ok = await confirm({
+                                title: 'Mark as pushed?',
+                                body: `This will mark <b>${w.rel.split('/').pop()}</b> as pushed in the file. You can\'t undo this automatically.`,
+                                ok: 'Yes, mark done',
+                              });
+                              if (!ok) return;
+                              await markFileDone(w.rel);
+                              toast('Marked as pushed ✓','ok');
+                            }}
                             style={{background:'none',border:'1px solid var(--border)',borderRadius:7,padding:'3px 8px',cursor:'pointer',fontSize:11,fontWeight:700,color:'var(--text3)',display:'inline-flex',alignItems:'center',gap:4,whiteSpace:'nowrap',flexShrink:0}}
                           >
                             <ion-icon name="checkmark-outline" style={{fontSize:13}}></ion-icon>Mark done

@@ -255,7 +255,12 @@ app.get('/api/worklogs', async (req, res) => {
     try { await mkdir(WORKLOG_DIR, { recursive: true }); } catch {}
   }
   const files = await walkJson(WORKLOG_DIR, WORKLOG_DIR);
-  files.sort((a, b) => b.mtime - a.mtime || a.rel.localeCompare(b.rel)); // newest first
+  // sort newest date first; fall back to mtime then filename
+  files.sort((a, b) => {
+    const da = a.date || '', db = b.date || '';
+    if (da && db && da !== db) return da > db ? -1 : 1;
+    return b.mtime - a.mtime || a.rel.localeCompare(b.rel);
+  });
   res.json({ dir: WORKLOG_DIR, files });
 });
 
