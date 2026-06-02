@@ -6,9 +6,15 @@
   "main": "server.js",
   "scripts": {
     "start": "node --watch server.js",
-    "start:once": "node server.js"
+    "start:once": "node server.js",
+    "build:bundle": "node build.mjs",
+    "build:exe": "npm run build:bundle && pkg server-bundle.cjs --target node18-win-x64 --output worklog-pusher.exe --compress GZip"
   },
+  "pkg": {},
   "dependencies": {
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
   }
 }

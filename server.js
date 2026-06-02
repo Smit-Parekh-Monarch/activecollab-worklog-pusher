@@ -8,9 +8,11 @@ import { networkInterfaces } from 'os';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json({ limit: '5mb' }));
-app.use(express.static(join(__dirname, 'public')));
-// Figma-changes CSV viewer, served as a second route at /figma (auto-loads its figma-changes.csv)
-app.use('/figma', express.static(join(__dirname, 'csv-figmachanegs')));
+// STATIC_ROOT is set to beside the .exe when running as a built executable;
+// otherwise it's the project directory (normal npm start usage).
+const STATIC_ROOT = process.env.STATIC_ROOT || __dirname;
+app.use(express.static(join(STATIC_ROOT, 'public')));
+app.use('/figma', express.static(join(STATIC_ROOT, 'csv-figmachanegs')));
 
 const PORT = process.env.PORT || 5050;
 // Folder the UI lists work-log JSON files from (the /update-stats command writes here).

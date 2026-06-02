@@ -1,6 +1,11 @@
 node_modules/
+dist/
 .playwright-mcp/
 *.png
 *.log
 _mock.mjs
 _t.mjs
+server-bundle.cjs
+worklog-pusher.exe
+worklog-pusher-dist.zip
+exe-entry.cjs
