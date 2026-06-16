@@ -1,0 +1,47 @@
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Offboarding Module — Requirements & Design Specs",
+      "date": "2026-06-11",
+      "hours": "01:30",
+      "body": "Offboarding module requirements and detailed design specs (resignation, exit settlement, letters, DB migration)",
+      "summary": "- Explored backend + frontend codebase to ground the Offboarding module design\n- Wrote master requirements doc and per-feature design specs: Resignation Request, Exit Settlement (workflow-based, no salary system), Experience Letter, Relieving Letter\n- Authored consolidated DB migration spec with a won't-break-existing-flows analysis\n- Cross-linked all specs from the master index"
+    },
+    {
+      "name": "Resignation Request — Backend (Spring Boot)",
+      "date": "2026-06-11",
+      "hours": "01:30",
+      "body": "Implemented resignation backend: V93 migration, entities, repos, DTOs, service, controller",
+      "summary": "- Wrote V93 Flyway migration (employee_exits, notice_period_configs + role seeds, users override column)\n- Added ExitReason/ExitStatus enums + resignation NotificationType values\n- Built EmployeeExit & NoticePeriodConfig entities, repositories, request/response DTOs\n- Implemented ResignationService (role-based notice resolution, full state machine, in-app notifications) + ResignationController; compiled BUILD SUCCESS"
+    },
+    {
+      "name": "Resignation Request — Frontend (React Native/Expo)",
+      "date": "2026-06-11",
+      "hours": "01:30",
+      "body": "Implemented resignation frontend: RTK Query API, employee + HR screens, navigation",
+      "summary": "- Built resignationApi.ts (12 RTK Query hooks) + added Resignation cache tag\n- Created MyResignationScreen (employee: submit modal + status tracker) and OffboardingScreen (HR list + detail/accept/reject/complete modals)\n- Wired navigation (types, DrawerNavigator) and role-gated sidebar items\n- Typecheck clean — no new errors"
+    },
+    {
+      "name": "Resignation — Hierarchy-Scoped Visibility & Manager Permissions",
+      "date": "2026-06-11",
+      "hours": "01:00",
+      "body": "Row-level scoped visibility; managers see their team and acknowledge only",
+      "summary": "- Added viewer-scoped list query + per-row access checks (admin/HR see all; managers see only their direct reports' plain-employee resignations)\n- Elevated-role resignations restricted to admin/super-admin/HR\n- Set manager permission to Acknowledge-only (Accept/Reject/Complete restricted to admin/HR) in backend @PreAuthorize and frontend button gating"
+    },
+    {
+      "name": "Local DB Setup & V93 Migration",
+      "date": "2026-06-11",
+      "hours": "00:30",
+      "body": "Applied V93 to local monarch-portal-stage and repointed start-local.ps1 to local DB",
+      "summary": "- Diagnosed deployed-vs-dev migration lineage gap; numbered migration V93 above the deployed max\n- Applied and verified V93 on the local monarch-portal-stage DB (tables + seeds + column)\n- Repointed start-local.ps1 backend to the local DB via env-var datasource override (fixed an auth-failure)"
+    },
+    {
+      "name": "Resignation UI Refinements & Card Mockups",
+      "date": "2026-06-11",
+      "hours": "01:00",
+      "body": "Date-picker default, tenure/notice-given fields, connected timeline, card design variants",
+      "summary": "- Fixed submit date picker to pre-fill the earliest allowed day so the calendar opens on a selectable month\n- Added Tenure and Notice Given to the Offboarding detail modal and My Resignation card\n- Rebuilt the status timeline as a connected vertical timeline\n- Produced 4 HTML status-card design variants for review"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Offboarding — Dropdown UI (SelectField) Across Resignation Flow",
+      "date": "2026-06-15",
+      "hours": "03:30",
+      "body": "Replaced native/raw dropdowns with the shared SelectField across resignation/offboarding and added an inline-dropdown mode",
+      "summary": "- Replaced the raw HTML <select> status filter on the Offboarding listing with the shared SelectField UI\n- Added a useDropdown prop to SelectField so it renders an inline positioned dropdown on web instead of the bottom-sheet drawer\n- Set searchable=false on the short status/reason dropdowns (removed the internal search box); kept search only in the employee picker\n- Employee picker now shows Name + 'ID · Role' (pulled from the user's roles)\n- Type-checked clean across all edited files"
+    },
+    {
+      "name": "Offboarding — Branch, Commit, Push & History Cleanup",
+      "date": "2026-06-15",
+      "hours": "01:45",
+      "body": "Branched from dev, committed and pushed the dropdown work; extracted an accidental msalConfig change and force-pushed a clean commit",
+      "summary": "- Created branch fix/offboarding-dropdown-ui from origin/dev (verified offboarding files matched dev)\n- Committed and pushed the dropdown UI changes to Bitbucket\n- Detected an unrelated msalConfig.web.ts change swept in by git add -A\n- Pulled it out of the commit, stashed it, and force-pushed the cleaned commit (offboarding files only)"
+    },
+    {
+      "name": "Offboarding — TL/PL Resignation Manager Visibility Review",
+      "date": "2026-06-15",
+      "hours": "01:45",
+      "body": "Traced the backend visibility logic to confirm a Team Lead / Project Lead resignation surfaces to their reporting manager",
+      "summary": "- Traced findByFiltersScoped + ELEVATED_ROLES in the resignation service/repository\n- Confirmed TEAM_LEAD/PROJECT_LEAD are excluded from ELEVATED_ROLES, so their resignations show to the reporting manager\n- Confirmed visibility is computed at read-time (no snapshot) so already-submitted resignations surface automatically\n- Confirmed the logic is already on origin/dev; noted managers see it in the list but are not push-notified (HR/Admin only)"
+    },
+    {
+      "name": "Local DB — Remove Designation for User",
+      "date": "2026-06-15",
+      "hours": "00:30",
+      "body": "Cleared job_title (designation) for a user in the local stage database",
+      "summary": "- Located the job_title column on the users table in monarch-portal-stage\n- Verified the existing value before changing it\n- Set job_title = NULL for the target user and confirmed the update"
+    },
+    {
+      "name": "My Resignation — Loading Issue Diagnosis",
+      "date": "2026-06-15",
+      "hours": "00:30",
+      "body": "Diagnosed the My Resignation page stuck on the loader as a backend request hang, not a frontend bug",
+      "summary": "- Identified the full-page loader is gated on useGetMyExitQuery (GET my exit)\n- Confirmed from the Network panel that all API requests were pending (backend hang, one 200 after 20s)\n- Tied it to the Spring async/SSE filter-chain stack trace (dropped notification/ws streams saturating threads)\n- Recommended a backend restart + hard reload; confirmed the frontend changes were unrelated"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Filter UI — Multi-Select Dropdown & DataTable Header",
+      "date": "2026-06-10",
+      "hours": "04:00",
+      "body": "Filter UI with multi-select dropdown and DataTable header customization",
+      "summary": "- Implemented multi-select dropdown filter component for the Users screen\n- Added DataTable header customization to support dynamic column visibility\n- Wired filter state to the user list API query params\n- Committed feat(users) on feat/filter-ui branch"
+    },
+    {
+      "name": "Manager Role — Leave, Attendance & Shift Change Request Review, Debug & Test",
+      "date": "2026-06-10",
+      "hours": "02:00",
+      "body": "Manager role: review leave, attendance, shift change requests + debug and test",
+      "summary": "- Reviewed leave request flow under manager role — verified visibility and approval actions\n- Tested attendance request list and status filters for manager-scoped access\n- Reviewed shift change request handling for managers\n- Debugged and tested end-to-end manager role permissions and request flows"
+    },
+    {
+      "name": "Branch Sync — Merge Dev into feat/filter-ui",
+      "date": "2026-06-10",
+      "hours": "01:00",
+      "body": "Pulled latest dev and merged into feat/filter-ui",
+      "summary": "- Pulled latest changes from dev branch into feat/filter-ui\n- Resolved merge conflicts and verified feature parity\n- Kept branch up to date ahead of PR"
+    },
+    {
+      "name": "Codebase Research & Commit Analysis",
+      "date": "2026-06-10",
+      "hours": "01:00",
+      "body": "MIPL codebase research and team commit review",
+      "summary": "- Reviewed full commit history across monarch-innovation-app and monarch-innovation-backend\n- Analysed today's team commits (67 total) across workflow, meals, attendance, and UI modules\n- Investigated branch state, author breakdown, and PR merge status for planning"
+    }
+  ]
+}

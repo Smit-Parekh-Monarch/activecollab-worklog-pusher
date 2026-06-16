@@ -1,0 +1,33 @@
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Weekly Birthday Filter — feat & fix",
+      "date": "2026-06-09",
+      "hours": "02:40",
+      "body": "Weekly birthday filter feature and react-native-svg fix",
+      "summary": "- Added Weekly filter to birthday screen using react-native-ui-datepicker pickers\n- Fixed react-native-svg to v15.15.5 to resolve npm ci lock file mismatch\n- Merged fix/weekly-birthday-dropdown into dev (PRs #129 & #130)"
+    },
+    {
+      "name": "Profile Screen Redesign",
+      "date": "2026-06-09",
+      "hours": "02:40",
+      "body": "Profile screen redesign and API fix",
+      "summary": "- Refined ProfileScreen redesign: edit table, fields, and card layout\n- Fixed API integration issues on profile screen\n- Merged origin/dev into feature branch and merged PR #124 into dev"
+    },
+    {
+      "name": "Auth-Protected Profile Photos",
+      "date": "2026-06-09",
+      "hours": "00:40",
+      "body": "Authenticated fetch for profile photos",
+      "summary": "- Rendered auth-protected profile photos via authenticated fetch instead of direct URL access"
+    },
+    {
+      "name": "Environment-Driven API Base URL & Production Web Build",
+      "date": "2026-06-09",
+      "hours": "02:00",
+      "body": "API base URL config and production web build",
+      "summary": "- Made API base URL environment-driven via env config\n- Added production web build configuration"
+    }
+  ]
+}

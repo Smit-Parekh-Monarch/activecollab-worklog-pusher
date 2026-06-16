@@ -86,7 +86,14 @@ const PROMPT = [
   '(describe your tasks, the date, and how many hours each took)',
 ].join('\n');
 
-const SAMPLE_CURL = `curl 'http://192.168.200.198/activecollab/api/v1/projects/6070/tasks' -H 'X-Angie-CsrfValidator: 8f2a1c9d4e6b7a0f' -b 'sessionid=abc; activecollab_csrf_validator_for_6070=8f2a1c9d4e6b7a0f' --data-raw '{"task_list_id":32330,"name":"Test","user_id":748}'`;
+const SAMPLE_CURL = `curl 'http://192.168.200.198/activecollab/api/v1/projects/6070/tasks' -H 'X-Angie-CsrfValidator: 8f2a1c9d4e6b7a0f' -b 'sessionid=abc; activecollab_csrf_validator_for_6070=8f2a1c9d4e6b7a0f' --data-raw '{"task_list_id":32329,"name":"Test","user_id":748}'`;
+
+// Selectable task lists (shown as "Project" in the UI)
+const PROJECTS = [
+  { id: '32329', label: 'MIPL' },
+  { id: '32330', label: 'Monarch Website' },
+];
+const DEFAULT_TASK_LIST = '32329'; // MIPL
 
 /* ---------- main app ---------- */
 function App() {
@@ -97,7 +104,7 @@ function App() {
   const [base, setBase]           = useState(ls.base || 'http://192.168.200.198/activecollab/api/v1');
   const [userId, setUserId]       = useState(ls.userId || '748');
   const [projectId, setProjectId] = useState(ls.projectId || '6070');
-  const [taskListId, setTaskListId] = useState(ls.taskListId || '32330');
+  const [taskListId, setTaskListId] = useState(ls.taskListId || DEFAULT_TASK_LIST);
   const [parsed, setParsed]       = useState({ cookie: ls.cookie||'', csrf: ls.csrf||'' });
   const [capturedAt, setCapturedAt] = useState(ls.capturedAt || null);
   const connected = !!(parsed.cookie && parsed.csrf);
@@ -166,11 +173,12 @@ function App() {
     else toast('Session captured ✓','ok');
   }
 
-  // auto-parse 500ms after paste
+  // auto-parse & store as soon as a cURL is pasted/typed (no Parse click needed)
   const autoRef = useRef(null);
   useEffect(() => {
     clearTimeout(autoRef.current);
-    if (curl.trim()) autoRef.current = setTimeout(() => doParse({silent:true}), 500);
+    // short debounce so a paste captures the session almost immediately
+    if (curl.trim()) autoRef.current = setTimeout(() => doParse({silent:true}), 120);
   }, [curl]);
 
   /* -- load worklogs from server -- */
@@ -421,6 +429,14 @@ function App() {
             onChange={e=>{setCurl(e.target.value); persist({curl:e.target.value});}}
             placeholder={"curl 'http://…/projects/6070/tasks' -H 'X-Angie-CsrfValidator: …' -b '…' --data-raw '{…}'"} />
           <div className="field-grid" style={{marginTop:12}}>
+            <div>
+              <label className="fld">Project</label>
+              <select className="inp mono-inp" value={PROJECTS.some(p=>p.id===taskListId) ? taskListId : ''}
+                onChange={e=>{const v=e.target.value; if(v){ setTaskListId(v); persist({taskListId:v}); }}}>
+                {!PROJECTS.some(p=>p.id===taskListId) && <option value="">Custom (#{taskListId||'—'})</option>}
+                {PROJECTS.map(p => <option key={p.id} value={p.id}>{p.label} — #{p.id}</option>)}
+              </select>
+            </div>
             <div><label className="fld">Base URL</label><input className="inp mono-inp" value={base} onChange={e=>{setBase(e.target.value); persist({base:e.target.value});}} /></div>
             <div><label className="fld">Your user ID</label><input className="inp mono-inp" value={userId} onChange={e=>{setUserId(e.target.value); persist({userId:e.target.value});}} /></div>
             <div><label className="fld">Project ID</label><input className="inp mono-inp" value={projectId} onChange={e=>{setProjectId(e.target.value); persist({projectId:e.target.value});}} /></div>

@@ -1,0 +1,47 @@
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Offboarding — Exit Settlement UI & Right-Drawer",
+      "date": "2026-06-12",
+      "hours": "01:45",
+      "body": "Exit settlement frontend with right-side slide-in drawer UX",
+      "summary": "- Built the exit settlement frontend (RTK Query + inline settlement section)\n- Created a reusable right-side slide-in drawer (renders above the navbar) for the Offboarding detail\n- Moved settlement to an inline section inside the detail drawer (totals + month-by-month + refresh/finalize)\n- Replaced stacked centered modals with the drawer pattern"
+    },
+    {
+      "name": "Offboarding — Experience Letter (HTML to PDF)",
+      "date": "2026-06-12",
+      "hours": "01:30",
+      "body": "Experience letter backend foundation + PDF generation + frontend",
+      "summary": "- Added the shared letter-generation foundation: gender-aware pronoun resolver, company/signatory config, HTML to PDF rendering (openhtmltopdf)\n- Implemented the experience letter service with tenure calculation and gender-aware wording\n- Verified a real gender-aware PDF end-to-end (letterhead, dates, pronouns, tenure)\n- Built the frontend Documents section to generate/view the letter"
+    },
+    {
+      "name": "Offboarding — Relieving Letter + Settlement Gate",
+      "date": "2026-06-12",
+      "hours": "01:30",
+      "body": "Relieving letter backend + finalized-settlement gate + frontend",
+      "summary": "- Implemented the relieving letter reusing the shared letter foundation\n- Gated relieving letter generation on the exit settlement being finalized (configurable)\n- Verified the gate blocks correctly and the PDF renders with gender-aware wording\n- Extended the frontend to list and generate both experience and relieving letters"
+    },
+    {
+      "name": "Offboarding — Letter Release Flow & Employee Download",
+      "date": "2026-06-12",
+      "hours": "01:30",
+      "body": "Generate vs release separation + ownership-scoped employee download",
+      "summary": "- Added a release flow: generating a letter no longer exposes it; HR must explicitly Release to the employee (sets released flag, notifies)\n- Built ownership-scoped employee download endpoints so employees fetch only their own released letters\n- Added the HR Release button + Released/Draft badges and an employee Documents view on My Resignation\n- Verified the full flow: hidden before release, downloadable after"
+    },
+    {
+      "name": "Offboarding — Documents UI Redesign & Download Fix",
+      "date": "2026-06-12",
+      "hours": "01:00",
+      "body": "Letter-card UI for the documents section + download error handling",
+      "summary": "- Redesigned the documents section as per-letter cards (icon + title + status + footer action bar) to fix the cramped 3-button layout\n- Fixed the employee download (storage path mismatch) and hardened it to return a clean 404 when a file is missing\n- Surfaced download errors on the employee side instead of failing silently"
+    },
+    {
+      "name": "Offboarding — Merge dev & Renumber Migrations",
+      "date": "2026-06-12",
+      "hours": "01:00",
+      "body": "Merged origin/dev into feat/offboarding; resolved migration version collisions",
+      "summary": "- Merged the latest origin/dev into feat/offboarding in both repos (clean, no conflicts)\n- Detected Flyway version collisions (dev advanced to V102); renumbered offboarding migrations to V103-V106\n- Recompiled the merged backend (BUILD SUCCESS) and re-ran frontend typecheck (no new errors)\n- Branch is now up to date with dev and collision-free"
+    }
+  ]
+}
