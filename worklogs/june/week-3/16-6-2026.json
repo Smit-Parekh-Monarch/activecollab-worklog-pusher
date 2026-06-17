@@ -1,0 +1,51 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [
+      "Open PR for fix/offboarding-dropdown-ui → dev and get it reviewed/merged – ETA: Today EOD"
+    ],
+    "next": [
+      "Add manager notification on resignation submit (currently only HR/Admin are notified)",
+      "Verify reporting-manager data is set for existing TL/PL records so they surface correctly"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "Exit Settlement — Local Stage DB Repair & Backup Restore",
+      "date": "2026-06-16",
+      "hours": "02:05",
+      "body": "Fixed local stage DB schema drift that blocked settlement generation, then restored the latest stage backup into the local DB",
+      "summary": "- Cleared stale target/ build artifacts causing a duplicate Flyway V112 and a 'no main class' startup failure\n- Found the workflows table missing V94/V96 columns and the ac_expense_review*/it_asset_requests tables (Flyway history out of sync with the actual schema)\n- Restored stage_backup_16_06 (a pg_dump CUSTOM-format archive despite the .sql name) into localhost:5432 via pg_restore --clean --create\n- Verified the previously-failing settlement query runs cleanly after the restore"
+    },
+    {
+      "name": "Exit Settlement — Auto-Generate on Resignation Accept/Complete",
+      "date": "2026-06-16",
+      "hours": "02:00",
+      "body": "Settlement now auto-generates and saves when a resignation is accepted/admin-created/completed, so HR/Admin see it without clicking Generate",
+      "summary": "- Added SettlementAutoGenerateEvent and an after-commit listener (SettlementAutoGenerator)\n- Published the event from accept(), adminCreate() (accepted/completed) and complete()\n- Ran generation in a REQUIRES_NEW transaction so it never rolls back the resignation and reads committed data\n- Verified: creating an accepted resignation auto-created the saved settlement with no manual Generate click"
+    },
+    {
+      "name": "Exit Settlement — Clip Totals to Notice-Period Window",
+      "date": "2026-06-16",
+      "hours": "01:35",
+      "body": "Settlement totals now count only working days inside the notice window instead of summing full calendar months",
+      "summary": "- Diagnosed the confusing 35 working days (full April + partial May) versus the one-month notice window\n- Clipped each month to [windowStart, windowEnd]: working days counted exactly, hours/leave scaled to the in-window slice\n- Verified working days 35 → 22 for the back-dated exit\n- Added a UI hint in the settlement modal that figures are limited to the notice window"
+    },
+    {
+      "name": "Exit Settlement — Full-Balance Paid Leave",
+      "date": "2026-06-16",
+      "hours": "01:35",
+      "body": "Notice-period leave now counts as paid against the full remaining annual balance instead of the monthly-accrued amount",
+      "summary": "- Found paid leave being recorded as unpaid because the workflow engine splits leave by monthly accrual\n- Re-split leave in the settlement layer using the full remaining balance (allocated − used), consumed chronologically across months\n- Repriced payable hours to match the new paid-leave amount\n- Scoped to the settlement only (payroll/workflow engine left untouched); verified paid 1 → 4.45 and unpaid → 0"
+    },
+    {
+      "name": "Exit Settlement — Back-Dated Resignation Window Fix",
+      "date": "2026-06-16",
+      "hours": "00:55",
+      "body": "Fixed the 400 'Confirmed last working day is before the acceptance date' error for HR back-dated / already-left employees",
+      "summary": "- Traced the inverted window: acceptedAt (today's wall-clock) used as the window start fell after the past last working day\n- Fell back to the resignation date as the window start for back-dated exits\n- Left the normal accept flow unchanged; the fix also repairs already-persisted records\n- Verified generation for the completed back-dated exit (window 19 Apr → 19 May)"
+    }
+  ]
+}

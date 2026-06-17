@@ -13,6 +13,7 @@ app.use(express.json({ limit: '5mb' }));
 const STATIC_ROOT = process.env.STATIC_ROOT || __dirname;
 app.use(express.static(join(STATIC_ROOT, 'public')));
 app.use('/figma', express.static(join(STATIC_ROOT, 'csv-figmachanegs')));
+app.use('/standup', express.static(join(STATIC_ROOT, 'smitp-standup')));
 
 const PORT = process.env.PORT || 5050;
 // Dedicated folder for work-log JSONs (month/week/date.json structure).
@@ -335,7 +336,7 @@ try {
     const f = String(filename).replace(/\\/g, '/');
     if (/(^|\/)(node_modules|\.git|\.claude|\.playwright-mcp)\//.test(f)) return;
     const low = f.toLowerCase();
-    if (low.startsWith('public/') || low.startsWith('csv-figmachanegs/')) {
+    if (low.startsWith('public/') || low.startsWith('csv-figmachanegs/') || low.startsWith('smitp-standup/')) {
       if (/\.(html|css|js)$/.test(low)) schedule('reload');      // code/asset changed → reload browser
       else if (low.endsWith('.csv')) schedule('csv');            // figma CSV changed → refresh viewer
     } else if (low.endsWith('.json')) {
@@ -367,5 +368,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`  │  Local  →  http://localhost:${PORT}                  │`);
   console.log(`  │  Share  →  http://${lanIP}:${PORT}          │`);
   console.log(`  │  Figma  →  http://${lanIP}:${PORT}/figma    │`);
+  console.log(`  │  Standup→  http://${lanIP}:${PORT}/standup  │`);
   console.log(`  └─────────────────────────────────────────────────────┘\n`);
 });

@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smitp — Daily Standup</title>
+    <style>
+      :root {
+        --bg: #f7f9fc;
+        --card: #ffffff;
+        --border: #e0e6f0;
+        --navy: #00296b;
+        --blue: #327ef8;
+        --muted: #7d8894;
+        --heading: #111827;
+        --ok-bg: #dcfce7;
+        --ok-text: #166534;
+        --prog-bg: #fef3c7;
+        --prog-text: #92400e;
+        --next-bg: #e0e7ff;
+        --next-text: #3730a3;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--heading);
+        padding: 28px;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; }
+      header { margin-bottom: 18px; }
+      h1 { font-size: 22px; margin: 0 0 4px; color: var(--navy); }
+      p.sub { margin: 0; color: var(--muted); font-size: 14px; }
+      .toolbar {
+        display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        margin: 16px 0;
+      }
+      input[type="search"] {
+        flex: 1; min-width: 220px; height: 40px; padding: 0 14px;
+        border: 1px solid var(--border); border-radius: 10px; font-size: 14px; background: var(--card);
+      }
+      button {
+        height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--border);
+        background: var(--card); color: var(--navy); font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: all .12s ease;
+      }
+      button:hover { border-color: var(--blue); color: var(--blue); }
+      button.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+      button.primary:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+      .card {
+        background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,41,107,.05);
+      }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      thead th {
+        text-align: left; background: #eff5ff; color: var(--navy); font-size: 12px;
+        text-transform: uppercase; letter-spacing: .5px; padding: 12px 14px; border-bottom: 1px solid var(--border);
+        position: sticky; top: 0; white-space: nowrap;
+      }
+      tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      tbody tr:hover { background: #f7f9fc; }
+      tbody tr:last-child td { border-bottom: none; }
+      td.cell { cursor: copy; }
+      td.cell:hover { background: #eff5ff; }
+      td.col-name { font-weight: 700; color: var(--navy); white-space: nowrap; }
+      td.col-project { font-weight: 600; white-space: nowrap; }
+      ul.bullets { margin: 0; padding: 0; list-style: none; }
+      ul.bullets li { position: relative; padding-left: 16px; margin: 0 0 6px; line-height: 1.45; }
+      ul.bullets li:last-child { margin-bottom: 0; }
+      ul.bullets li::before { content: "•"; position: absolute; left: 0; color: var(--blue); font-weight: 700; }
+      .eta { color: var(--prog-text); font-weight: 700; }
+      .tag {
+        display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px;
+      }
+      .tag.prog { background: var(--prog-bg); color: var(--prog-text); }
+      .tag.done { background: var(--ok-bg); color: var(--ok-text); }
+      .tag.next { background: var(--next-bg); color: var(--next-text); }
+      .row-copy { height: 30px; padding: 0 10px; font-size: 12px; border-radius: 8px; white-space: nowrap; }
+      .empty { padding: 40px; text-align: center; color: var(--muted); }
+      .meta { margin-top: 12px; font-size: 12px; color: var(--muted); }
+      .toast {
+        position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+        background: var(--navy); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px;
+        opacity: 0; transition: opacity .2s ease; pointer-events: none;
+      }
+      .toast.show { opacity: 1; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <a href="/" style="display:inline-block;margin-bottom:10px;color:var(--blue);font-size:13px;font-weight:600;text-decoration:none;">&larr; Work-log Pusher</a>
+        <h1>Smitp — Daily Standup</h1>
+        <p class="sub">One row per work-log that has a <code>standup</code> block. Copy a row and paste it straight into Excel / Google Sheets.</p>
+      </header>
+
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Filter rows…" />
+        <button id="copyAll" class="primary">Copy all rows</button>
+        <button id="copyHeader">Copy header</button>
+        <button id="reload">↻ Reload</button>
+      </div>
+
+      <div class="card">
+        <table id="tbl">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+        <div id="empty" class="empty" style="display:none"></div>
+      </div>
+
+      <div class="meta" id="meta"></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+      // Column order = the standup sheet header.
+      const COLS = ['Name', 'Project', 'In Progress & ETA', 'Completed', 'Next in Queue'];
+      let rows = []; // [{ name, project, inProgress[], completed[], next[], rel }]
+
+      /* ---------- data loading ---------- */
+      async function loadAll() {
+        let list;
+        try {
+          const r = await fetch('/api/worklogs');
+          list = (await r.json()).files || [];
+        } catch (e) {
+          rows = [];
+          render();
+          showEmpty('Could not reach the server. Run `npm start` and open http://localhost:5050/standup');
+          return;
+        }
+        // Read each worklog; keep only the ones that carry a standup block.
+        const built = [];
+        for (const f of list) {
+          if (!f.valid) continue;
+          let json;
+          try {
+            const r = await fetch('/api/worklog?path=' + encodeURIComponent(f.rel));
+            json = await r.json();
+          } catch { continue; }
+          const s = json && json.standup;
+          if (!s) continue;
+          const tasks = Array.isArray(json) ? json : (json.tasks || []);
+          built.push({
+            rel: f.rel,
+            date: f.date || '',
+            name: s.name || '',
+            project: s.project || '',
+            inProgress: asLines(s.inProgress),
+            // Completed: explicit list wins, else auto-derive one bullet per task.
+            completed: s.completed ? asLines(s.completed)
+                                   : tasks.map(t => (t.body || t.name || '').trim()).filter(Boolean),
+            next: asLines(s.next),
+          });
+        }
+        rows = built;
+        render(document.getElementById('search').value);
+      }
+
+      function asLines(v) {
+        if (!v) return [];
+        if (Array.isArray(v)) return v.map(x => String(x).trim()).filter(Boolean);
+        // allow a single string with newlines / leading bullets
+        return String(v).split('\n').map(x => x.replace(/^[•\-\*]\s*/, '').trim()).filter(Boolean);
+      }
+
+      /* ---------- rendering ---------- */
+      function bulletCell(lines, tagClass, tagText, isEta) {
+        const td = document.createElement('td');
+        td.className = 'cell';
+        if (tagText) {
+          const tag = document.createElement('span');
+          tag.className = 'tag ' + tagClass;
+          tag.textContent = tagText;
+          td.appendChild(tag);
+        }
+        const ul = document.createElement('ul');
+        ul.className = 'bullets';
+        (lines.length ? lines : ['—']).forEach(line => {
+          const li = document.createElement('li');
+          if (isEta) {
+            // bold the "ETA: …" part if present
+            const m = line.match(/^(.*?)(ETA:.*)$/i);
+            if (m) {
+              li.appendChild(document.createTextNode(m[1]));
+              const b = document.createElement('span');
+              b.className = 'eta';
+              b.textContent = m[2];
+              li.appendChild(b);
+            } else { li.textContent = line; }
+          } else { li.textContent = line; }
+          ul.appendChild(li);
+        });
+        td.appendChild(ul);
+        td.title = 'Click to copy this cell';
+        td.onclick = () => copyText(lines.join('\n'), 'Cell copied');
+        return td;
+      }
+
+      function plainCell(text, cls) {
+        const td = document.createElement('td');
+        td.className = 'cell ' + (cls || '');
+        td.textContent = text || '—';
+        td.title = 'Click to copy this cell';
+        td.onclick = () => copyText(text || '', 'Cell copied');
+        return td;
+      }
+
+      function render(filter = '') {
+        const thead = document.querySelector('#tbl thead');
+        const tbody = document.querySelector('#tbl tbody');
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+
+        if (!rows.length) { showEmpty('No work-logs with a "standup" block yet. Add one to a daily JSON (see README).'); return; }
+        document.getElementById('empty').style.display = 'none';
+
+        const htr = document.createElement('tr');
+        COLS.forEach(h => { const th = document.createElement('th'); th.textContent = h; htr.appendChild(th); });
+        htr.appendChild(document.createElement('th'));
+        thead.appendChild(htr);
+
+        const f = filter.trim().toLowerCase();
+        let shown = 0;
+        rows.forEach(r => {
+          const hay = [r.name, r.project, ...r.inProgress, ...r.completed, ...r.next].join(' ').toLowerCase();
+          if (f && !hay.includes(f)) return;
+          shown++;
+          const tr = document.createElement('tr');
+          tr.appendChild(plainCell(r.name, 'col-name'));
+          tr.appendChild(plainCell(r.project, 'col-project'));
+          tr.appendChild(bulletCell(r.inProgress, 'prog', 'In Progress', true));
+          tr.appendChild(bulletCell(r.completed, 'done', 'Done'));
+          tr.appendChild(bulletCell(r.next, 'next', 'Queued'));
+
+          const tdAct = document.createElement('td');
+          const btn = document.createElement('button');
+          btn.className = 'row-copy';
+          btn.textContent = 'Copy';
+          btn.onclick = (e) => { e.stopPropagation(); copyText(rowTSV(r), 'Row copied (paste into Excel)'); };
+          tdAct.appendChild(btn);
+          tr.appendChild(tdAct);
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('meta').textContent =
+          shown + ' row' + (shown === 1 ? '' : 's') + ' · click any cell to copy it · "Copy" copies the whole row tab-separated.';
+      }
+
+      function showEmpty(msg) {
+        const e = document.getElementById('empty');
+        e.textContent = msg;
+        e.style.display = 'block';
+        document.getElementById('meta').textContent = '';
+      }
+
+      /* ---------- clipboard (Excel-friendly TSV) ---------- */
+      // A cell with newlines/tabs/quotes must be wrapped in quotes (quotes doubled) so
+      // Excel/Sheets keep the bullets inside one cell instead of spilling across columns.
+      function tsvCell(text) {
+        const t = String(text == null ? '' : text);
+        return /[\t\n"]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+      }
+      function bulletText(lines) {
+        return (lines && lines.length ? lines : []).map(l => '• ' + l).join('\n');
+      }
+      function rowTSV(r) {
+        return [
+          r.name,
+          r.project,
+          bulletText(r.inProgress),
+          bulletText(r.completed),
+          bulletText(r.next),
+        ].map(tsvCell).join('\t');
+      }
+      function headerTSV() { return COLS.map(tsvCell).join('\t'); }
+
+      function copyText(text, msg) {
+        const done = () => toast(msg || 'Copied');
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+        } else { fallbackCopy(text, done); }
+      }
+      function fallbackCopy(text, done) {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta); done();
+      }
+
+      let toastTimer;
+      function toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 1400);
+      }
+
+      /* ---------- wiring ---------- */
+      document.getElementById('search').addEventListener('input', e => render(e.target.value));
+      document.getElementById('reload').addEventListener('click', loadAll);
+      document.getElementById('copyHeader').addEventListener('click', () => copyText(headerTSV(), 'Header row copied'));
+      document.getElementById('copyAll').addEventListener('click', () => {
+        const f = document.getElementById('search').value.trim().toLowerCase();
+        const visible = rows.filter(r => {
+          if (!f) return true;
+          return [r.name, r.project, ...r.inProgress, ...r.completed, ...r.next].join(' ').toLowerCase().includes(f);
+        });
+        const out = [headerTSV(), ...visible.map(rowTSV)].join('\n');
+        copyText(out, 'All rows + header copied (paste into Excel)');
+      });
+
+      loadAll();
+
+      // live updates: refresh data when a work-log JSON changes, reload page when code changes
+      try {
+        const es = new EventSource('/api/events');
+        es.addEventListener('worklogs', loadAll);
+        es.addEventListener('reload', () => location.reload());
+      } catch (e) {}
+    </script>
+  </body>
+</html>

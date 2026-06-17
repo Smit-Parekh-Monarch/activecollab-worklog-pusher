@@ -54,8 +54,18 @@ Then open **http://localhost:5050**
 - Defaults baked in to match your instance: `source: "task_sidebar"`, `job_type_id: 1`,
   `billable_status: 1`. Change them in `server.js` if needed.
 
+## Standup sheet (`/standup`)
+
+A second page, **Smitp standup**, turns each daily work-log into a copy-paste row for
+Excel / Google Sheets with the header **Name | Project | In Progress & ETA | Completed | Next in Queue**.
+Add a small `standup` block to a daily JSON and it shows up as a row (the **Completed** column
+auto-fills from `tasks[]`). Open **http://localhost:5050/standup** or click *Smitp standup* on the
+main page. Full details and the JSON format: [`smitp-standup/README.md`](smitp-standup/README.md).
+
 ## Files
 
 - `server.js` — Express backend: curl-driven proxy, cookie jar, 3-step push, NDJSON progress stream.
 - `public/index.html` — the single-page UI (curl parser, JSON preview, live push).
+- `csv-figmachanegs/index.html` — Figma Changes viewer (served at `/figma`).
+- `smitp-standup/index.html` — Daily Standup sheet (served at `/standup`).
 - `sample-worklog.json` — your three CRM sessions, ready to paste.
