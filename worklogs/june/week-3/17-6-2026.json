@@ -1,0 +1,45 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [
+      "Exited Employees register — push the app branch and open the PR (backend already merged to dev)",
+      "Relieving letter template — commit the change and verify a sample PDF"
+    ],
+    "next": [
+      "Run Exited Employees locally against the 226 stage records to eyeball the toolbar + infinite scroll",
+      "Generate a sample relieving-letter PDF to confirm the template formatting matches the .docx"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "Exited Employees — Read-Only Register (Backend + Frontend)",
+      "date": "2026-06-17",
+      "hours": "03:00",
+      "body": "New Admin/HR screen listing every employee who has left (pulled live from users.exited_at) with search, department and exit-date filters, Excel export, and infinite scroll",
+      "summary": "- Found 226 of 545 stage users have an exit date but only 3 have a COMPLETED employee_exits record — the rest are legacy, so the Offboarding screen never surfaced them\n- Backend: UserRepository.findExitedUsers (exited_at IS NOT NULL + department/date/search filters, ORDER BY exit date DESC, explicit countQuery), ExitedEmployeeService/Impl, ExitedEmployeeController (/api/exited-employees + /export Apache POI xlsx), Admin/HR only\n- Frontend: ExitedEmployeesScreen with a consistent toolbar (search + department dropdown + Exit from/to date pickers), infinite scroll like the Employees table, sidebar nav gated to Admin/HR (hrAdminOnly)\n- No migration — read-only over existing data; backend merged to dev, app committed (not yet pushed)"
+    },
+    {
+      "name": "Leave — Block Paid Leave During Notice Period",
+      "date": "2026-06-17",
+      "hours": "02:30",
+      "body": "Employees with an active resignation can no longer apply Casual (paid) leave — only LWP; the paid-leave option is hidden in the apply UI",
+      "summary": "- Backend: added ResignationService.hasActiveResignation and a guard in LeaveRequestServiceImpl.createLeave that rejects CASUAL while an active resignation exists\n- Frontend: hide the Casual leave option and show a lock notice in the apply modal while resigned; LWP still allowed\n- Applies to existing resignations automatically — it checks the current exit state, not the submit time\n- Merged to dev (backend PR #193/#194, app PR #213)"
+    },
+    {
+      "name": "Relieving Letter — Reproduce Monarch Template",
+      "date": "2026-06-17",
+      "hours": "02:00",
+      "body": "Rewrote the relieving-letter generator to match the official Monarch template wording/format, filling the employee placeholders with a gender-aware salutation",
+      "summary": "- Read the Relieving Letter TEMPLATE .docx and mapped placeholders EMP_NAME / EMP_ID / DESIGNATION / LAST_DATE / RESIGN_DATE\n- Rewrote RelievingLetterServiceImpl.buildHtml to reproduce the template verbatim — fixed signatory (Pritesh Patel, Managing Director) and full footer (CIN / GSTIN / DUNS / phones / email)\n- Gender-aware Mr./Ms. salutation via the existing PronounSet; top Date = resignation date per the template\n- Kept the settlement-finalized gate and the generate/release/download flow unchanged; backend compiles (uncommitted)"
+    },
+    {
+      "name": "Merge dev — Resolve AppSidebar Conflict",
+      "date": "2026-06-17",
+      "hours": "00:30",
+      "body": "Pulled dev into feat/exited-employees and resolved the AppSidebar.tsx merge conflict",
+      "summary": "- Kept dev's new PMS nav section (Vendors / Projects / Item Catalogue / Purchase Requests + pmsKey gating) alongside my Exited Employees item\n- NavItem interface carries both pmsKey and hrAdminOnly; filterItem keeps both gates\n- Completed the merge commit; backend had no conflict and is already in sync with dev"
+    }
+  ]
+}
