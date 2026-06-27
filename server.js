@@ -15,6 +15,9 @@ app.use(express.static(join(STATIC_ROOT, 'public')));
 app.use('/figma', express.static(join(STATIC_ROOT, 'csv-figmachanegs')));
 app.use('/standup', express.static(join(STATIC_ROOT, 'smitp-standup')));
 
+// Overtime → Expenses page (vanilla JS; served at a clean URL)
+app.get('/overtime', (_req, res) => res.sendFile(join(STATIC_ROOT, 'public', 'overtime.html')));
+
 const PORT = process.env.PORT || 5050;
 // Dedicated folder for work-log JSONs (month/week/date.json structure).
 // Only files inside here appear in the UI dropdown.
@@ -202,6 +205,61 @@ app.post('/api/push', async (req, res) => {
       else send({ idx, step: 'complete', status: 'ok' });
     } catch (e) {
       send({ idx, step: 'fatal', status: 'error', detail: String(e && e.message ? e.message : e) });
+    }
+  }
+
+  send({ done: true });
+  res.end();
+});
+
+/* ---------- push expenses endpoint (streams NDJSON progress) ---------- */
+app.post('/api/push-expenses', async (req, res) => {
+  const { base, projectId, cookie, csrf, expenses } = req.body || {};
+
+  res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache');
+  const send = (obj) => res.write(JSON.stringify(obj) + '\n');
+
+  if (!base || !projectId || !cookie || !Array.isArray(expenses)) {
+    send({ done: true, error: 'Missing required fields (base, projectId, cookie, expenses).' });
+    return res.end();
+  }
+
+  let origin;
+  try { origin = new URL(base).origin; }
+  catch { send({ done: true, error: 'Invalid base URL: ' + base }); return res.end(); }
+
+  const jar = parseCookieString(cookie);
+  const ctx = { base, origin, projectId, fallbackCsrf: csrf };
+
+  console.log('\n========================================================');
+  console.log(`[EXPENSES] base=${base}  project=${projectId}  count=${expenses.length}`);
+  console.log('========================================================');
+
+  for (let idx = 0; idx < expenses.length; idx++) {
+    const e = expenses[idx] || {};
+    console.log(`\n[EXPENSE ${idx + 1}/${expenses.length}] date=${e.record_date} value=${e.value}`);
+    try {
+      send({ idx, step: 'expense', status: 'start', date: e.record_date, value: e.value });
+      const body = {
+        value: String(e.value),
+        category_id: Number(e.category_id) || 0,
+        user_id: Number(e.user_id) || 0,
+        record_date: e.record_date,
+        billable_status: e.billable_status == null ? 1 : Number(e.billable_status),
+        summary: e.summary || '',
+        source: e.source || 'project_time',
+      };
+      if (e.task_id) body.task_id = Number(e.task_id);
+      const created = await acFetch(jar, ctx, {
+        method: 'POST',
+        path: `/projects/${projectId}/expenses`,
+        body,
+      });
+      if (!created.ok) send({ idx, step: 'expense', status: 'error', code: created.status, detail: snippet(created.text) });
+      else send({ idx, step: 'expense', status: 'ok', id: created.json?.single?.id || null, value: e.value, date: e.record_date });
+    } catch (err) {
+      send({ idx, step: 'fatal', status: 'error', detail: String(err && err.message ? err.message : err) });
     }
   }
 

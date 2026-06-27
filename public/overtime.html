@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Overtime → Expenses · Monarch</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body.ot { max-width: 1000px; margin: 0 auto; padding: 24px; }
+  .ot h1 { margin: 0 0 4px; }
+  .ot .sub { color: #888; margin: 0 0 20px; }
+  .ot .card { border: 1px solid #2a2a2a; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .ot label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+  .ot textarea, .ot input, .ot select { width: 100%; box-sizing: border-box; padding: 8px;
+    background: #111; color: #eee; border: 1px solid #333; border-radius: 6px; font: inherit; }
+  .ot .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .ot table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .ot th, .ot td { padding: 6px 8px; border-bottom: 1px solid #222; text-align: right; font-variant-numeric: tabular-nums; }
+  .ot th:first-child, .ot td:first-child { text-align: left; }
+  .ot tr.short td { color: #c97; }
+  .ot tr.push td { color: #7c7; }
+  .ot .summary { display: flex; gap: 24px; margin: 12px 0; font-size: 15px; flex-wrap: wrap; }
+  .ot button { padding: 10px 18px; border-radius: 8px; border: 0; background: #3a6df0; color: #fff;
+    font: inherit; cursor: pointer; }
+  .ot button:disabled { opacity: .5; cursor: not-allowed; }
+  .ot .status { font-size: 12px; }
+  .ot .status.ok { color: #7c7; } .ot .status.err { color: #f77; }
+  .ot .editot { width: 70px; text-align: right; }
+  .ot .wrap { overflow-x: auto; }
+  .ot a.back { color: #6af; font-size: 13px; }
+</style>
+</head>
+<body class="ot">
+<a class="back" href="/">← Work-log Pusher</a>
+<h1>Overtime → Expenses</h1>
+<p class="sub">Monthly overtime beyond an 8-hour day. Small overtime carries forward until it reaches 30 minutes, then it's pushed as an expense for that day.</p>
+
+<div class="card">
+  <label>Paste a cURL from an ActiveCollab <b>expense</b> request (Network tab → Copy as cURL)</label>
+  <textarea id="curl" rows="4" placeholder="curl 'http://…/projects/6070/expenses' -H 'X-Angie-CsrfValidator: …' -b '…' --data-raw '{&quot;category_id&quot;:2,&quot;user_id&quot;:748,&quot;task_id&quot;:…}'"></textarea>
+  <div class="grid" style="margin-top:10px">
+    <div><label>Base URL</label><input id="base" /></div>
+    <div><label>Project ID</label><input id="projectId" /></div>
+    <div><label>Category ID</label><input id="categoryId" /></div>
+    <div><label>User ID</label><input id="userId" /></div>
+    <div><label>Task ID</label><input id="taskId" /></div>
+    <div><label>Source</label><input id="source" value="project_time" /></div>
+    <div><label>Billable (0/1)</label><input id="billable" value="1" /></div>
+  </div>
+  <p id="auth" class="status"></p>
+</div>
+
+<div class="card">
+  <div class="grid">
+    <div><label>Month</label><select id="month"></select></div>
+    <div><label>Standard day (h)</label><input id="standard" value="8" /></div>
+  </div>
+  <div class="wrap">
+    <table id="tbl">
+      <thead><tr><th>Date</th><th>Hours</th><th>Deviation</th><th>Carry</th><th>Push OT (h)</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="summary">
+    <div>Net month: <b id="net">0</b> h</div>
+    <div>To push: <b id="topush">0</b> h</div>
+    <div>Carry left: <b id="remainder">0</b> h</div>
+  </div>
+  <button id="push" disabled>Push overtime as expenses</button>
+</div>
+
+<script type="module">
+import { computeMonthlyOvertime, groupByMonth, isoDateFromFile } from './overtime-core.js';
+
+const $ = (id) => document.getElementById(id);
+const LS = 'ac_overtime_v1';
+let files = [];           // /api/worklogs metas
+let current = { rows: [], net: 0, remainder: 0 };
+let cookie = '', csrf = '';
+
+function loadLS() { try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch { return {}; } }
+function saveLS() {
+  const o = { base: $('base').value, projectId: $('projectId').value, categoryId: $('categoryId').value,
+    userId: $('userId').value, taskId: $('taskId').value, source: $('source').value, billable: $('billable').value,
+    curl: $('curl').value };
+  try { localStorage.setItem(LS, JSON.stringify(o)); } catch {}
+}
+
+function grabQuoted(s, flag) {
+  let m = s.match(new RegExp(flag + "\\s+'([^']*)'")); if (m) return m[1];
+  m = s.match(new RegExp(flag + '\\s+"((?:[^"\\\\]|\\\\.)*)"')); if (m) return m[1].replace(/\\"/g, '"');
+  return '';
+}
+function parseCurl() {
+  const c = $('curl').value.trim();
+  if (!c) { cookie = ''; csrf = ''; $('auth').textContent = ''; return; }
+  const url = (c.match(/(https?:\/\/[^\s'"]+)/) || [])[1] || '';
+  const pid = (url.match(/\/projects\/(\d+)/) || c.match(/\/projects\/(\d+)/) || [])[1] || '';
+  let b = (url.match(/^(https?:\/\/.*\/api\/v\d+)/) || [])[1] || '';
+  if (!b) b = (url.match(/^(https?:\/\/.*?)\/projects\//) || [])[1] || '';
+  cookie = grabQuoted(c, '(?:-b|--cookie)');
+  csrf = ((c.match(/X-Angie-CsrfValidator:\s*([^'"\n]+)/) || [])[1] || '').trim();
+  const cat = (c.match(/"category_id"\s*:\s*(\d+)/) || [])[1] || '';
+  const uid = (c.match(/"user_id"\s*:\s*(\d+)/) || [])[1] || '';
+  const tid = (c.match(/"task_id"\s*:\s*(\d+)/) || [])[1] || '';
+  if (b) $('base').value = b;
+  if (pid) $('projectId').value = pid;
+  if (cat) $('categoryId').value = cat;
+  if (uid) $('userId').value = uid;
+  if (tid) $('taskId').value = tid;
+  const miss = [];
+  if (!cookie) miss.push('cookie'); if (!csrf) miss.push('CSRF');
+  $('auth').className = 'status ' + (miss.length ? 'err' : 'ok');
+  $('auth').textContent = miss.length ? 'Missing ' + miss.join(' & ') + ' — check the cURL' : 'Session captured ✓';
+  saveLS();
+}
+
+async function loadWorklogs() {
+  const r = await fetch('/api/worklogs');
+  const data = await r.json();
+  files = (data.files || []).filter((f) => f.valid !== false);
+  const months = groupByMonth(files);
+  const sel = $('month');
+  const prev = sel.value;
+  sel.innerHTML = '';
+  for (const k of months.keys()) {
+    const o = document.createElement('option'); o.value = k; o.textContent = k; sel.appendChild(o);
+  }
+  if ([...months.keys()].includes(prev)) sel.value = prev;
+  render();
+}
+
+function daysForMonth(monthKey) {
+  return files
+    .filter((f) => (isoDateFromFile(f) || '').slice(0, 7) === monthKey)
+    .map((f) => ({ date: isoDateFromFile(f), rel: f.rel, hours: Number(f.hours) || 0 }));
+}
+
+function render() {
+  const monthKey = $('month').value;
+  const standard = parseFloat($('standard').value) || 8;
+  const days = daysForMonth(monthKey);
+  current = computeMonthlyOvertime(days, { standardDay: standard });
+  const tb = $('tbl').querySelector('tbody');
+  tb.innerHTML = '';
+  current.rows.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.className = row.deviation < 0 ? 'short' : (row.pushedOT > 0 ? 'push' : '');
+    tr.innerHTML =
+      `<td>${row.date}</td>` +
+      `<td>${row.hours.toFixed(2)}</td>` +
+      `<td>${row.deviation > 0 ? '+' : ''}${row.deviation.toFixed(2)}</td>` +
+      `<td>${row.carryAfter.toFixed(2)}</td>` +
+      `<td><input class="editot" data-i="${i}" value="${row.pushedOT.toFixed(2)}" /></td>` +
+      `<td class="status" data-status="${i}"></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('input.editot').forEach((inp) => {
+    inp.addEventListener('change', () => {
+      const i = Number(inp.dataset.i);
+      current.rows[i].pushedOT = parseFloat(inp.value) || 0;
+      refreshTotals();
+    });
+  });
+  refreshTotals();
+  $('push').disabled = current.rows.length === 0;
+}
+
+function refreshTotals() {
+  const topush = current.rows.reduce((s, r) => s + (r.pushedOT > 0 ? r.pushedOT : 0), 0);
+  $('net').textContent = current.net.toFixed(2);
+  $('topush').textContent = topush.toFixed(2);
+  $('remainder').textContent = current.remainder.toFixed(2);
+}
+
+async function push() {
+  if (!cookie || !csrf) { alert('Paste a valid expense cURL first (cookie + CSRF needed).'); return; }
+  const pushRows = current.rows.filter((r) => r.pushedOT > 0);
+  if (!pushRows.length) { alert('No overtime to push for this month.'); return; }
+  const expenses = pushRows.map((r) => ({
+    record_date: r.date,
+    value: r.pushedOT.toFixed(2),
+    summary: `Overtime ${r.pushedOT.toFixed(2)}h on ${r.date}`,
+    category_id: $('categoryId').value,
+    user_id: $('userId').value,
+    task_id: $('taskId').value,
+    source: $('source').value || 'project_time',
+    billable_status: $('billable').value,
+  }));
+  const rowByDate = {};
+  current.rows.forEach((r, i) => { rowByDate[r.date] = i; });
+  $('push').disabled = true;
+  const res = await fetch('/api/push-expenses', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base: $('base').value, projectId: $('projectId').value, cookie, csrf, expenses }),
+  });
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '';
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let nl;
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
+      if (!line.trim()) continue;
+      let msg; try { msg = JSON.parse(line); } catch { continue; }
+      if (msg.done) continue;
+      const date = msg.date || (expenses[msg.idx] && expenses[msg.idx].record_date);
+      const i = rowByDate[date];
+      const cell = i != null && $('tbl').querySelector(`[data-status="${i}"]`);
+      if (cell) {
+        if (msg.status === 'ok') { cell.textContent = 'expense ✓'; cell.className = 'status ok'; }
+        else if (msg.status === 'error') { cell.textContent = `error ${msg.code || ''}`; cell.className = 'status err'; cell.title = msg.detail || ''; }
+        else if (msg.status === 'start') { cell.textContent = '…'; cell.className = 'status'; }
+      }
+    }
+  }
+  $('push').disabled = false;
+}
+
+// wire up
+const saved = loadLS();
+for (const [id, key] of [['base','base'],['projectId','projectId'],['categoryId','categoryId'],['userId','userId'],['taskId','taskId'],['source','source'],['billable','billable'],['curl','curl']]) {
+  if (saved[key] != null && saved[key] !== '') $(id).value = saved[key];
+}
+$('curl').addEventListener('input', () => { parseCurl(); });
+['base','projectId','categoryId','userId','taskId','source','billable'].forEach((id) => $(id).addEventListener('change', saveLS));
+$('month').addEventListener('change', render);
+$('standard').addEventListener('change', render);
+$('push').addEventListener('click', push);
+if ($('curl').value.trim()) parseCurl();
+loadWorklogs();
+
+// live refresh when worklog files change
+try {
+  const es = new EventSource('/api/events');
+  es.addEventListener('worklogs', () => loadWorklogs());
+} catch {}
+</script>
+</body>
+</html>
