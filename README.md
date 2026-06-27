@@ -62,6 +62,17 @@ Add a small `standup` block to a daily JSON and it shows up as a row (the **Comp
 auto-fills from `tasks[]`). Open **http://localhost:5050/standup** or click *Smitp standup* on the
 main page. Full details and the JSON format: [`smitp-standup/README.md`](smitp-standup/README.md).
 
+## Overtime → Expenses (`/overtime`)
+
+A third page that totals each month's overtime beyond an 8-hour day and pushes it
+to ActiveCollab as **expenses**. It reads the same daily worklogs. Overtime under
+30 minutes carries forward day-to-day until it reaches 30 minutes, then it's
+pushed for that day. Short days (under 8h) are shown for context but never pushed;
+the month's net total is shown for review only. Paste an **expense** cURL (not a
+task cURL) so it can read `category_id` / `user_id` / `task_id`. The `value` sent
+is the overtime in decimal hours. Open **http://localhost:5050/overtime** or click
+*Overtime* on the main page.
+
 ## Files
 
 - `server.js` — Express backend: curl-driven proxy, cookie jar, 3-step push, NDJSON progress stream.

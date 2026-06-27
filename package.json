@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node --watch server.js",
     "start:once": "node server.js",
-    "test": "node --test test/",
+    "test": "node --test \"test/**/*.test.js\"",
     "build:bundle": "node build.mjs",
     "build:exe": "npm run build:bundle && pkg server-bundle.cjs --target node18-win-x64 --output worklog-pusher.exe --compress GZip"
   },
