@@ -58,20 +58,20 @@
   </div>
   <div class="wrap">
     <table id="tbl">
-      <thead><tr><th>Date</th><th>Hours</th><th>Deviation</th><th>Carry</th><th>Push OT (h)</th><th>Status</th></tr></thead>
+      <thead><tr><th>Date</th><th>Hours</th><th>Deviation</th><th>Carry</th><th>Push OT (h:mm)</th><th>Status</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
   <div class="summary">
     <div>Net month: <b id="net">0</b> h</div>
-    <div>To push: <b id="topush">0</b> h</div>
+    <div>To push: <b id="topush">0:00</b> <span id="topushdec" style="color:#888"></span></div>
     <div>Carry left: <b id="remainder">0</b> h</div>
   </div>
   <button id="push" disabled>Push overtime as expenses</button>
 </div>
 
 <script type="module">
-import { computeMonthlyOvertime, groupByMonth, isoDateFromFile } from './overtime-core.js';
+import { computeMonthlyOvertime, groupByMonth, isoDateFromFile, parseHoursDecimal, decimalToHHMM } from './overtime-core.js';
 
 const $ = (id) => document.getElementById(id);
 const LS = 'ac_overtime_v1';
@@ -152,14 +152,16 @@ function render() {
       `<td>${row.hours.toFixed(2)}</td>` +
       `<td>${row.deviation > 0 ? '+' : ''}${row.deviation.toFixed(2)}</td>` +
       `<td>${row.carryAfter.toFixed(2)}</td>` +
-      `<td><input class="editot" data-i="${i}" value="${row.pushedOT.toFixed(2)}" /></td>` +
+      `<td><input class="editot" data-i="${i}" value="${decimalToHHMM(row.pushedOT)}" title="Type as h:mm (e.g. 0:30) or a decimal" /></td>` +
       `<td class="status" data-status="${i}"></td>`;
     tb.appendChild(tr);
   });
   tb.querySelectorAll('input.editot').forEach((inp) => {
     inp.addEventListener('change', () => {
       const i = Number(inp.dataset.i);
-      current.rows[i].pushedOT = parseFloat(inp.value) || 0;
+      const dec = parseHoursDecimal(inp.value.trim()); // accepts "0:30" or "0.5"
+      current.rows[i].pushedOT = dec;
+      inp.value = decimalToHHMM(dec);                  // normalize what they typed back to h:mm
       refreshTotals();
     });
   });
@@ -170,7 +172,8 @@ function render() {
 function refreshTotals() {
   const topush = current.rows.reduce((s, r) => s + (r.pushedOT > 0 ? r.pushedOT : 0), 0);
   $('net').textContent = current.net.toFixed(2);
-  $('topush').textContent = topush.toFixed(2);
+  $('topush').textContent = decimalToHHMM(topush);
+  $('topushdec').textContent = '· ' + topush.toFixed(2) + ' h (pushed as decimal)';
   $('remainder').textContent = current.remainder.toFixed(2);
 }
 

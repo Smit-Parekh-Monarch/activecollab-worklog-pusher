@@ -14,6 +14,15 @@ export function parseHoursDecimal(v) {
   return 0;
 }
 
+// 1.09 -> "1:05" (rounds to the nearest minute; negatives clamp to "0:00").
+export function decimalToHHMM(dec) {
+  const v = Math.max(0, +dec || 0);
+  let h = Math.floor(v);
+  let m = Math.round((v - h) * 60);
+  if (m === 60) { h += 1; m = 0; }
+  return `${h}:${String(m).padStart(2, '0')}`;
+}
+
 // ISO date for a worklog file: prefer its `date`, else parse a `d-m-yyyy` basename.
 export function isoDateFromFile(file) {
   if (file && file.date && /^\d{4}-\d{2}-\d{2}/.test(file.date)) return file.date.slice(0, 10);

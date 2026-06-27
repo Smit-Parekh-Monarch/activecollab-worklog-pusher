@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  parseHoursDecimal, isoDateFromFile, monthKeyOf, groupByMonth,
+  parseHoursDecimal, decimalToHHMM, isoDateFromFile, monthKeyOf, groupByMonth,
   computeMonthlyOvertime, STANDARD_DAY, MIN_RELEASE,
 } from '../public/overtime-core.js';
 
@@ -16,6 +16,21 @@ test('parseHoursDecimal', () => {
   assert.equal(parseHoursDecimal('3.5'), 3.5);
   assert.equal(parseHoursDecimal(2), 2);
   assert.equal(parseHoursDecimal(''), 0);
+});
+
+test('decimalToHHMM', () => {
+  assert.equal(decimalToHHMM(1.09), '1:05');   // 1h 5.4m -> rounds to 1:05
+  assert.equal(decimalToHHMM(0.5), '0:30');
+  assert.equal(decimalToHHMM(0.92), '0:55');
+  assert.equal(decimalToHHMM(2), '2:00');
+  assert.equal(decimalToHHMM(0.999), '1:00');  // 59.94m rounds up, carries
+  assert.equal(decimalToHHMM(-3), '0:00');     // negatives clamp to zero
+});
+
+// round-trip: typing time -> decimal -> time is stable to the minute
+test('parseHoursDecimal/decimalToHHMM round-trip', () => {
+  assert.equal(decimalToHHMM(parseHoursDecimal('0:30')), '0:30');
+  assert.equal(decimalToHHMM(parseHoursDecimal('1:45')), '1:45');
 });
 
 test('isoDateFromFile prefers date, falls back to rel basename', () => {

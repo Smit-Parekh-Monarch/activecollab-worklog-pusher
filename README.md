@@ -69,9 +69,10 @@ to ActiveCollab as **expenses**. It reads the same daily worklogs. Overtime unde
 30 minutes carries forward day-to-day until it reaches 30 minutes, then it's
 pushed for that day. Short days (under 8h) are shown for context but never pushed;
 the month's net total is shown for review only. Paste an **expense** cURL (not a
-task cURL) so it can read `category_id` / `user_id` / `task_id`. The `value` sent
-is the overtime in decimal hours. Open **http://localhost:5050/overtime** or click
-*Overtime* on the main page.
+task cURL) so it can read `category_id` / `user_id` / `task_id`. The **Push OT**
+cells are editable in normal time (`h:mm`, e.g. `0:30`); the `value` sent to
+ActiveCollab is the equivalent in decimal hours. Open
+**http://localhost:5050/overtime** or click *Overtime* on the main page.
 
 ## Files
 
