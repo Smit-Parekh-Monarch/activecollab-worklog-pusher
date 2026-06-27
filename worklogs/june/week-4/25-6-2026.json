@@ -1,0 +1,84 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [],
+    "next": [
+      "Fine-tune Jasper PDF layout (logo size, column widths, footer spacing) once rendered screenshots are reviewed",
+      "Optionally make active-resignation history collapsible and apply CC show-on-focus to the HR/Admin CC picker"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "JasperReports engine — experience & relieving letters",
+      "date": "2026-06-25",
+      "hours": "01:34",
+      "body": "Built a pure-Java JasperReports PDF engine for the experience and relieving letters and wired a Generate button in the frontend.",
+      "summary": "- Added JasperReports dependency and LetterEngine.JASPER\n- Created letter-jasper.jrxml (letterhead logo header + footer band with GPTW badge) and JasperLetterService composing dynamic body HTML matching the DOCX\n- Routed both letter services through engine=JASPER; smoke test renders valid PDFs\n- Added frontend Jasper engine type + generate button"
+    },
+    {
+      "name": "F&F settlement statement via Jasper",
+      "date": "2026-06-25",
+      "hours": "01:33",
+      "body": "Moved the F&F settlement statement off the HTML engine onto a dedicated Jasper template with a real per-month table.",
+      "summary": "- Created fnf-statement.jrxml (meta block, totals, month-by-month table bound to a datasource, note, signature, shared footer)\n- FnfStatementServiceImpl now formats the settlement into a data map and renders via JasperLetterService.fnf\n- Multi-template caching in JasperLetterService; removed dead buildHtml/esc\n- Smoke test renders all three documents"
+    },
+    {
+      "name": "Letterhead only in production",
+      "date": "2026-06-25",
+      "hours": "00:56",
+      "body": "Jasper engine now honors app.letter.letterhead.enabled so stage/non-prod letters render plain.",
+      "summary": "- Gated logo, footer band and badge on a LETTERHEAD param via printWhenExpression in both templates\n- Service streams the images only when enabled\n- Verified: ~653KB with letterhead vs ~2KB without"
+    },
+    {
+      "name": "Sidebar — collapsible Offboarding group",
+      "date": "2026-06-25",
+      "hours": "00:56",
+      "body": "Consolidated the offboarding screens under one collapsible Offboarding menu group.",
+      "summary": "- My Resignation (moved out of MAIN), Resignations (renamed admin list), Exited Employees grouped under a collapsible header\n- Chevron toggle, defaults open, each item still role-gated\n- Reduces top-level menu clutter"
+    },
+    {
+      "name": "DocumentCard shadcn Button + loading",
+      "date": "2026-06-25",
+      "hours": "00:56",
+      "body": "Converted hand-rolled letter-card buttons to shadcn Button and added loading on View/Download.",
+      "summary": "- Replaced bare <button> with shadcn <Button> (hover, focus-ring, disabled for free)\n- Per-action loading spinner + labels on View and Download blob fetches"
+    },
+    {
+      "name": "Single Generate PDF button + validation",
+      "date": "2026-06-25",
+      "hours": "00:56",
+      "body": "Standardized letter cards on one Generate PDF (Jasper) button with pre-generation gating.",
+      "summary": "- Hid Word Template / Quick PDF buttons; left one Generate PDF (engine=JASPER)\n- Until a letter exists (rev 0), View/Download/Issue/Email/Roll-back disabled via a generated flag"
+    },
+    {
+      "name": "SettlementCard shadcn Table",
+      "date": "2026-06-25",
+      "hours": "00:37",
+      "body": "Converted the settlement month-by-month breakdown to the shadcn Table component.",
+      "summary": "- Replaced flattened flex text rows with aligned Month / Working Days / Payable Hrs / Paid Leave columns\n- Horizontal scroll on narrow widths; consistent with the other offboarding tables"
+    },
+    {
+      "name": "My Resignation live-updating view fix",
+      "date": "2026-06-25",
+      "hours": "00:37",
+      "body": "Fixed the employee My Resignation screen not updating without a reload and not matching the old app UI.",
+      "summary": "- Redirected /my-exit to the rich /exit-process employee view (hero, to-dos, documents, apply form)\n- That view polls every 15s, so admin updates now appear automatically\n- Existing sidebar/header/notification links keep working via the redirect"
+    },
+    {
+      "name": "CC search UX",
+      "date": "2026-06-25",
+      "hours": "00:37",
+      "body": "Fixed the CC recipient picker so the eligible list shows on focus and filters as you type.",
+      "summary": "- Focus shows eligible recipients (backend returns all managers/HR/admins for empty query; employees never eligible)\n- Live filtering, scrollable dropdown with hover, mousedown-preventDefault so selection isn't swallowed by blur\n- Verified CC visibility: a CC'd manager sees the resignation even when not the reporting manager"
+    },
+    {
+      "name": "Submit form on top + collapsible history",
+      "date": "2026-06-25",
+      "hours": "00:18",
+      "body": "Reordered the employee revert view so the submit form is primary and history is collapsible.",
+      "summary": "- Moved the Submit Resignation form directly under the status notice\n- History moved into a collapsed Previous history section that expands on click\n- Rendered the toast in this branch for submit feedback"
+    }
+  ]
+}

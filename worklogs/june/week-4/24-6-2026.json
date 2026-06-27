@@ -1,0 +1,60 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [
+      "LibreOffice headless letter conversion on stage — code done, blocked on env (net.dll JVM shutdown crash + stale-build deploys); need monarch-portal runtime log on port 8084",
+      "Stage deploy diagnosis with DevOps — identifying correct service log and verifying LibreOffice warm-up",
+      "Relieving letter blank-body letterhead-merge fix — not yet verified end-to-end"
+    ],
+    "next": [
+      "Confirm LibreOffice warm-up OK in monarch-portal log, then deploy to prod",
+      "Build HR/admin edit of exit dates (confirmed/submitted/proposed LWD) once block-when-COMPLETED + settlement-recompute decisions are made"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "LibreOffice headless letter conversion reliability",
+      "date": "2026-06-24",
+      "hours": "01:58",
+      "body": "Hardened the DOCX->PDF (LibreOffice/Word) path so it runs under the Windows LocalSystem service account.",
+      "summary": "- Added headless flags (--norestore, --nofirststartwizard, --nolockcheck) and per-run isolated profile\n- Fixed the broken timeout (process output to file so waitFor actually governs) — was blocking forever on a hang\n- Resolve soffice by file existence (not a flaky --version probe that fails under Session 0)\n- Cache the path at startup + background warm-up to avoid slow cold start\n- Made LibreOffice path + DevOps-provisioned C:/LibreOfficeProfile configurable"
+    },
+    {
+      "name": "Match letter PDF to MD DOCX template",
+      "date": "2026-06-24",
+      "hours": "01:38",
+      "body": "Made the generated letters reproduce the MD-provided letterhead and exact wording.",
+      "summary": "- Extracted logo + Great Place To Work footer badge from letterhead.docx, embedded as base64\n- Built fixed header (logo top-right) and footer (company address/CIN/GSTIN/DUNS + contact + badge)\n- Reproduced exact relieving & experience letter wording from the MD templates\n- Letterhead shown in production only (stage = plain)"
+    },
+    {
+      "name": "Dual letter engine + two generate buttons",
+      "date": "2026-06-24",
+      "hours": "01:38",
+      "body": "Let HR generate letters via either the Word .docx template or pure-Java HTML.",
+      "summary": "- Added LetterEngine enum; generate(exitId, engine) on relieving/experience services\n- ?engine=TEMPLATE (LibreOffice) or HTML (openhtmltopdf, default) on the controller\n- Frontend: DocumentCard second button; wired Word Template + Quick PDF actions\n- Updated RTK Query mutations to pass the engine"
+    },
+    {
+      "name": "Stage deploy diagnosis (net.dll JVM crash)",
+      "date": "2026-06-24",
+      "hours": "01:19",
+      "body": "Diagnosed why stage letter generation still failed after deploy.",
+      "summary": "- Identified a stale build was deployed (engine param ignored -> openhtmltopdf in logs)\n- Confirmed all code merged into dev (PR #258, d1f2a12); triggered rebuild via Jenkins pipeline\n- Identified user-supplied logs were the wrong service (legacy MiplNewBackendApplication) and a JVM hs_err crash\n- Diagnosed the net.dll crash as a Windows NetworkInterface.getAll() shutdown issue (JVM/driver), unrelated to letter code; suggested -Djava.net.preferIPv4Stack=true"
+    },
+    {
+      "name": "Embed Arial font + fix footer entity crash",
+      "date": "2026-06-24",
+      "hours": "00:59",
+      "body": "Fixed loose letter spacing and a latent production crash in HTML letters.",
+      "summary": "- Registered real Arial TTF with openhtmltopdf (was falling back to base-14 Helvetica with approximate widths)\n- Verified via rendered PDF: embeds ArialMT/Arial-BoldMT subsets, crisp spacing\n- Caught & fixed &nbsp; in footer (strict XHTML rejects it -> would crash letterhead generation)\n- Replaced non-breaking hyphens (rendered as #) with plain hyphens; fixed footer column widths so email no longer wraps"
+    },
+    {
+      "name": "Fix relieving letter blank body (letterhead merge detection)",
+      "date": "2026-06-24",
+      "hours": "00:39",
+      "body": "Continued the letterhead-merge body-detection fix in DocxTemplateService.",
+      "summary": "- isFooterAddressElement scoped to CIN/GSTIN/DUNS + Dwarkesh markers\n- Folded into the broader TEMPLATE-engine pipeline now deployed\n- End-to-end body verification still pending on a working stage LibreOffice run"
+    }
+  ]
+}

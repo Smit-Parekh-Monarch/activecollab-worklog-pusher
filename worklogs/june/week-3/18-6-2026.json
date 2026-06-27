@@ -1,0 +1,48 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [
+      "Exit Process UI — components, stage metadata/state derivation, and domain types added",
+      "Exit process backend + email functionality and enhancements",
+      "Exited Employees register — app branch committed but not pushed",
+      "Relieving letter template — backend change still uncommitted on feat/exited-employees"
+    ],
+    "next": [
+      "Complete and wire up the Exit Process UI flow end-to-end",
+      "Push the Exited Employees register app branch",
+      "Commit the relieving letter template backend change"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "Exit Process UI",
+      "date": "2026-06-18",
+      "hours": "03:15",
+      "body": "Built the Exit Process UI: components/functionality, stage metadata + state derivation helpers, and domain types.",
+      "summary": "- Added Exit Process components and core functionality\n- Implemented stage metadata and state derivation helpers\n- Defined domain types for the exit-process UI"
+    },
+    {
+      "name": "Exit process backend + email",
+      "date": "2026-06-18",
+      "hours": "02:45",
+      "body": "Implemented email functionality and exit process enhancements on the backend.",
+      "summary": "- Implemented email functionality for the exit process\n- Added exit process backend enhancements\n- Wired email triggers into the exit flow"
+    },
+    {
+      "name": "Exited Employees register",
+      "date": "2026-06-18",
+      "hours": "01:40",
+      "body": "Continued the read-only exited-employees register (screen + listing API + Excel export).",
+      "summary": "- Refined exited-employees listing screen and toolbar\n- Verified backend findExitedUsers/service/controller and Excel export\n- App branch committed (pending push)"
+    },
+    {
+      "name": "Relieving letter template",
+      "date": "2026-06-18",
+      "hours": "01:00",
+      "body": "Continued the Monarch relieving-letter template in RelievingLetterServiceImpl.buildHtml.",
+      "summary": "- Reproduced Monarch relieving-letter template layout\n- Fixed signatory, footer, and gender-aware salutation\n- Backend change still uncommitted on feat/exited-employees"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [
+      "Requests Hub redesign — shipped to dev (PRs #56–#67); final cross-role QA on shift/attendance/meal-OT/leave"
+    ],
+    "next": [
+      "Clean up the duplicate out_for_work migration in the backend repo",
+      "Server-side pagination for the leave approver list if it can exceed 100 records",
+      "Optionally let approvers browse already approved/rejected attendance items in the hub"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "Requests Hub redesign (5 types, AG Grid, sidebar, role-driven views)",
+      "date": "2026-06-26",
+      "hours": "02:45",
+      "body": "Built the unified config-driven Requests hub covering shift, attendance, meal, OT and leave.",
+      "summary": "- One RequestsView shell + per-type RequestTypeConfig; reused existing shift/attendance/meal/leave APIs (no new backend)\n- AG Grid tables with toolbar search + status chips; requestLabels normalizes every status enum\n- Sidebar 'Requests' parent with children + pending badges; role-driven views with My/All scope toggle for approvers\n- Apply Leave modal (CL/LWP cards + balance banner); inline create for shift/leave/OT"
+    },
+    {
+      "name": "Attendance detail modal + approve/reject",
+      "date": "2026-06-26",
+      "hours": "02:30",
+      "body": "Implemented the rich attendance request detail modal and fixed approve/reject flow.",
+      "summary": "- Two-column Original vs Requested comparison (check-in/out, breaks, total hours) ported from the RN app\n- Manager's Comment on approve (sent as adminRemarks); required rejection-reason modal per type\n- Approver view now combines pending + approved + rejected + cancelled endpoints so actioned items move to the right filter\n- Refetch list after approve/reject/cancel so the tab updates immediately"
+    },
+    {
+      "name": "Requests hub UI polish",
+      "date": "2026-06-26",
+      "hours": "01:45",
+      "body": "UI/UX pass across the requests hub tables and modals.",
+      "summary": "- Frozen table header (grid scrolls rows internally); compact status badge; narrower detail modal\n- shadcn Tabs for the Meal/OT switch; consistent sm button sizes; Radix Select for dropdowns inside modals\n- Whole-row click to open detail with pointer cursor; removed AG Grid cell-focus box and pinned-column line"
+    },
+    {
+      "name": "Attendance pending-edit-requests 500 fix",
+      "date": "2026-06-26",
+      "hours": "00:30",
+      "body": "Fixed the 500 on /api/attendance/pending-edit-requests caused by a missing DB migration.",
+      "summary": "- Diagnosed from the stack trace: column punchingdetail.out_for_work did not exist\n- Applied the existing out_for_work columns migration to the local stage DB (local Flyway is off)\n- Verified the four columns now exist and the endpoint loads"
+    }
+  ]
+}

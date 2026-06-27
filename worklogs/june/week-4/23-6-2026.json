@@ -1,0 +1,50 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [
+      "Fix relieving letter blank body — isFooterAddressElement paragraph check scoped, backend restart + PDF verification pending"
+    ],
+    "next": [
+      "Restart backend and regenerate relieving letter for Mihir Panchal (exit 1674) to verify full body content in PDF"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "Add \"Issue to Employee\" button (backend + frontend)",
+      "date": "2026-06-23",
+      "hours": "02:45",
+      "body": "Added issue() methods in ExperienceLetterServiceImpl and RelievingLetterServiceImpl, new /issue controller endpoints, API mutations in resignationApi.ts, and Issue to Employee button in DocumentCard, ExitDetailScreen, and LettersSection",
+      "summary": "- Added issue() in ExperienceLetterServiceImpl and RelievingLetterServiceImpl (released=true, in-app notification only)\n- Added POST /{exitId}/experience/issue and POST /{exitId}/relieving/issue endpoints in ExitLetterController\n- Added issueExperienceLetter and issueRelievingLetter mutations in resignationApi.ts and exitLetterApi.ts\n- Added Issue to Employee button in DocumentCard.tsx with onIssue/issueLoading props\n- Wired up mutations and props in ExitDetailScreen.tsx and LettersSection.tsx"
+    },
+    {
+      "name": "Fix relieving letter blank body (letterhead merge detection)",
+      "date": "2026-06-23",
+      "hours": "02:15",
+      "body": "isFooterAddressElement() paragraph check was matching Monarch Innovation Private Limited in the letter recipient block, cutting off all body content; scoped paragraph stop to CIN/GSTIN/DUNS only, table stop uses Dwarkesh/CIN/GSTIN",
+      "summary": "- Identified root cause: looksLikeFooterText() checked text.startsWith(\"monarch innovation private limited\") for paragraphs, matching the recipient address line in the letter body\n- Split detection logic: paragraph check now only stops at CIN:/GSTIN:/DUNS: lines\n- Table check detects footer by dwarkesh business hub, CIN:, GSTIN:, DUNS:, or company name with trailing content\n- Removed shared looksLikeFooterText() helper; inlined distinct logic for paragraph vs table"
+    },
+    {
+      "name": "Add rollback notification for experience/relieving letters",
+      "date": "2026-06-23",
+      "hours": "01:30",
+      "body": "When HR rolls back an issued letter, employee now receives an in-app notification; added EXPERIENCE_LETTER_RECALLED and RELIEVING_LETTER_RECALLED to NotificationType enum",
+      "summary": "- Added EXPERIENCE_LETTER_RECALLED and RELIEVING_LETTER_RECALLED to NotificationType.java\n- Updated rollback() in ExperienceLetterServiceImpl to call notificationService.notify() with EXPERIENCE_LETTER_RECALLED\n- Updated rollback() in RelievingLetterServiceImpl to call notificationService.notify() with RELIEVING_LETTER_RECALLED\n- Wrapped notification calls in try/catch to avoid failing the rollback transaction"
+    },
+    {
+      "name": "Fix double footer in letter PDFs",
+      "date": "2026-06-23",
+      "hours": "01:30",
+      "body": "Letter PDFs were showing two footer blocks — one inline from the letter template body, one from the letterhead footer section; fixed isFooterAddressElement() to correctly detect and strip the inline footer table before merge",
+      "summary": "- Diagnosed two-footer issue: letter template had inline address block (two-column table) that was being copied into letterhead body along with the letterhead's own footer section\n- Fixed isFooterAddressElement() to detect the inline footer table by unique identifiers (Dwarkesh Business Hub, CIN, GSTIN)\n- Verified letterhead footer section carries company address + Great Place to Work badge; inline copy is no longer duplicated"
+    },
+    {
+      "name": "Fix employee View button to use secure endpoints",
+      "date": "2026-06-23",
+      "hours": "00:30",
+      "body": "Employee View button in MyExitScreen was passing raw viewUrl (storage path) to openDoc; fixed to use /my/experience/file, /my/relieving/file, /my/fnf/file secure endpoints instead",
+      "summary": "- Identified security gap: toEmployeeResponse() correctly omits viewUrl, but openDoc was receiving null/undefined\n- Fixed MyExitScreen.tsx onView handler to build secureUrl from key (experience/relieving/fnf) mapping to /api/offboarding/letters/my/*/file endpoints\n- Consistent with existing employee-facing API design (no raw storage paths exposed)"
+    }
+  ]
+}

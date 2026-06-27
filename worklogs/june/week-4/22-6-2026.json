@@ -1,0 +1,40 @@
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Exited Employees register",
+      "date": "2026-06-22",
+      "hours": "01:55",
+      "body": "Merged exited employees register feature to stage — backend API, Excel export, frontend screen with infinite scroll and admin/HR nav.",
+      "summary": "- Implemented backend findExitedUsers service and controller\n- Added Excel export endpoint for exited employees list\n- Built frontend screen with toolbar and infinite scroll\n- Wired Admin/HR sidebar navigation entries\n- Merged to stage"
+    },
+    {
+      "name": "Exit Process UI",
+      "date": "2026-06-22",
+      "hours": "01:54",
+      "body": "Wired RESIGNATION_VIEW_ALL and VIEW_OWN permission gates to nav and detail screen; enhanced MyExitScreen with resignation revert and F&F acknowledgment.",
+      "summary": "- Wired RESIGNATION_VIEW_ALL and VIEW_OWN to sidebar nav\n- Added permission gate on exit detail screen\n- Implemented resignation revert functionality on MyExitScreen\n- Integrated F&F acknowledgment UI into MyExitScreen\n- Merged to stage"
+    },
+    {
+      "name": "Exit process backend + email",
+      "date": "2026-06-22",
+      "hours": "01:54",
+      "body": "Implemented employee F&F acknowledgment and KT document management backend; added exit_kt_documents table and migration scripts.",
+      "summary": "- Created exit_kt_documents table migration\n- Updated it_asset_requests schema\n- Implemented F&F acknowledgment service and controller\n- Added KT document management endpoints\n- Fixed migration scripts for conditional table creation\n- Merged to stage"
+    },
+    {
+      "name": "Relieving letter template",
+      "date": "2026-06-22",
+      "hours": "01:31",
+      "body": "Rewrote RelievingLetterServiceImpl.buildHtml to reproduce the Monarch relieving-letter template with correct signatory, footer, and gender-aware salutation.",
+      "summary": "- Fixed signatory to Pritesh Patel\n- Added full footer block matching Monarch template\n- Implemented gender-aware salutation logic\n- Merged to stage"
+    },
+    {
+      "name": "Fix: exit CC loading",
+      "date": "2026-06-22",
+      "hours": "00:46",
+      "body": "Removed auto-notify on CC add; added loading states to all CC and stage buttons in both backend and frontend.",
+      "summary": "- Removed immediate notification trigger on CC recipient add\n- Added loading state to CC add/remove buttons\n- Added loading state to stage action buttons\n- Applied fix across backend and frontend\n- Merged PRs #226 (backend) and #251 (frontend)"
+    }
+  ]
+}
