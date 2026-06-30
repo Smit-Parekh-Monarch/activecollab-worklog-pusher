@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Repaired the local stage database that was blocking settlement generation and restored the latest backup. Made the exit settlement auto-generate when a resignation is accepted or completed, clipped the totals to the notice-period window, counted notice-period leave as paid against the full remaining balance, and fixed the back-dated-resignation window error.",
   "standup": {
     "name": "Smit Parekh",
     "project": "MIPL Portal",

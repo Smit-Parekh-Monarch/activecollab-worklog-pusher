@@ -1,0 +1,16 @@
+Changes,Description,By,Start Date,End Date,Status
+Updating mega menu redirection,"Repointed all services mega-menu links to the new page slugs and fixed the dropdown hover/redirection behavior; added old->new URL redirects (e.g. /about -> /about-us)",SmitP,2026-06-02,2026-06-02,Done
+Updating slugs for old pages that already developed,"Renamed and flattened slugs of already-built service pages (e.g. custom-crm-design-and-development -> crm-design-development; flattened digital-engineering/web-mobile/* pages to top-level services) and updated nav, footer, and sitemap references to the new hrefs",SmitP,2026-06-02,2026-06-02,Done
+Services Mega Menu,"Rebuilt to a 3-column layout with click-to-stay-open, active-state highlighting, current-page emphasis, and a 'coming soon' empty state for unbuilt sections",SmitP,2026-05-14,2026-05-28,Done
+Mechanical Design Engineering page,"Redesigned all sections to Figma (What We Do, Services grid, Process timeline, Why Monarch, Industries, Tools, FAQ, Contact) with hover/expand card animations",SmitP,2026-05-14,2026-05-14,Done
+CFD & CAE Simulation page,"Refined every section to match Figma — What We Do, orbital Process layout, capability cards with gradient hover, Industries, Why Us, Software section, and CTA banner",SmitP,2026-05-18,2026-05-18,Done
+Footer,Updated footer UI to match the Figma design,SmitP,2026-05-13,2026-05-13,Done
+Blog / Insights inner page,"Redesigned the blog detail page to Figma (contained hero card, article layout, share icons, related-post cards) and migrated blog -> insights with real Sanity data",SmitP,2026-05-19,2026-05-22,Done
+Language switcher (nav),"Added the language switcher with click-to-toggle, URL-based routing, translated-slug navigation, and English fallback",SmitP,2026-05-21,2026-05-21,Done
+Industrial Laser Cutting page,"Refined sections with Figma-accurate designs, corrected icons, and real assets",SmitP,2026-05-27,2026-05-28,Done
+Homepage,"Updated the Vision section badge image, hero badge and animation, and blog-card spacing",SmitP,2026-05-11,2026-05-20,Done
+Services page,Capped the container width and made the hero full-bleed on large screens,SmitP,2026-05-07,2026-05-12,Done
+Sanity image wiring,"Wired the Culture, Services, and Product Catalog sections to Sanity CDN images",SmitP,2026-05-13,2026-05-13,Done
+Blog,Add date filter design & add pagination design,SmitP,2026-05-25,2026-05-25,Pending
+Blog Details,Adjust padding,SmitP,2026-05-25,2026-05-25,Pending
+Added slug in services,Add slugs in design,SmitP,2026-05-25,2026-05-25,Pending

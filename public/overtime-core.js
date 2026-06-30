@@ -34,6 +34,15 @@ export function isoDateFromFile(file) {
   return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
+// True for Saturday/Sunday. Parses YYYY-MM-DD by component via Date.UTC so the
+// weekday never shifts with the local timezone.
+export function isWeekend(isoDate) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate || '');
+  if (!m) return false;
+  const day = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay();
+  return day === 0 || day === 6;
+}
+
 export function monthKeyOf(file) {
   const iso = isoDateFromFile(file);
   return iso ? iso.slice(0, 7) : null;
@@ -52,20 +61,25 @@ export function groupByMonth(files) {
 }
 
 // days: [{ date, rel?, hours(decimal) }]. Chronological carry accumulator.
+// Weekends (Sat/Sun) have no standard workday, so every weekend hour is overtime;
+// the weekend standard defaults to 0 and is overridable via opts.weekendStandard.
 export function computeMonthlyOvertime(days, opts = {}) {
   const standardDay = opts.standardDay ?? STANDARD_DAY;
+  const weekendStandard = opts.weekendStandard ?? 0;
   const minRelease = opts.minRelease ?? MIN_RELEASE;
   const sorted = [...days].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
   let carry = 0, net = 0, totalPushed = 0;
   const rows = sorted.map((d) => {
+    const weekend = isWeekend(d.date);
+    const standard = weekend ? weekendStandard : standardDay;
     const hours = r2(d.hours);
-    const deviation = r2(hours - standardDay);
+    const deviation = r2(hours - standard);
     net = r2(net + deviation);
     carry = r2(carry + Math.max(0, deviation)); // only positive OT accumulates
     let pushedOT = 0;
     if (carry >= minRelease - 1e-9) { pushedOT = carry; carry = 0; }
     totalPushed = r2(totalPushed + pushedOT);
-    return { date: d.date, rel: d.rel, hours, deviation, carryAfter: carry, pushedOT };
+    return { date: d.date, rel: d.rel, hours, deviation, carryAfter: carry, pushedOT, isWeekend: weekend, standard };
   });
   return { rows, net: r2(net), totalPushed: r2(totalPushed), remainder: r2(carry) };
 }

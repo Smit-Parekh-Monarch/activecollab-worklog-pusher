@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Added an Issue to Employee action for the experience and relieving letters across the backend and frontend. Fixed the relieving letter rendering with a blank body (footer detection was matching the recipient address), removed a duplicated footer in the PDFs, added rollback notifications when HR recalls a letter, and switched the employee View button to the secure file endpoints.",
   "standup": {
     "name": "Smit Parekh",
     "project": "MIPL Portal",
@@ -45,6 +46,13 @@
       "hours": "00:30",
       "body": "Employee View button in MyExitScreen was passing raw viewUrl (storage path) to openDoc; fixed to use /my/experience/file, /my/relieving/file, /my/fnf/file secure endpoints instead",
       "summary": "- Identified security gap: toEmployeeResponse() correctly omits viewUrl, but openDoc was receiving null/undefined\n- Fixed MyExitScreen.tsx onView handler to build secureUrl from key (experience/relieving/fnf) mapping to /api/offboarding/letters/my/*/file endpoints\n- Consistent with existing employee-facing API design (no raw storage paths exposed)"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "0.50",
+      "summary": "Added an Issue to Employee action for the experience and relieving letters across the backend and frontend. Fixed the relieving letter rendering with a blank body (footer detection was matching the recipient address), removed a duplicated footer in the PDFs, added rollback notifications when HR recalls a letter, and switched the employee View button to the secure file endpoints.",
+      "at": "2026-06-29T18:58:20.869Z"
     }
   ]
 }

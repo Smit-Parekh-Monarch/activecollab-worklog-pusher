@@ -6,67 +6,126 @@
 <title>Overtime → Expenses · Monarch</title>
 <link rel="stylesheet" href="styles.css" />
 <style>
-  html, body.ot { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
-  body.ot { max-width: 1000px; margin: 0 auto; padding: 24px; }
+  /* This page lives inside the app's light theme (see styles.css :root vars). */
+  html, body.ot { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto;
+    background: var(--bg); color: var(--text); }
+  body.ot { max-width: 920px; margin: 0 auto; padding: 24px; }
   .ot h1 { margin: 0 0 4px; }
-  .ot .sub { color: #888; margin: 0 0 20px; }
-  .ot .card { border: 1px solid #2a2a2a; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-  .ot label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+  .ot .sub { color: var(--text2); margin: 0 0 20px; max-width: 60ch; }
+  .ot .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+  .ot label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
   .ot textarea, .ot input, .ot select { width: 100%; box-sizing: border-box; padding: 8px;
-    background: #111; color: #eee; border: 1px solid #333; border-radius: 6px; font: inherit; }
+    background: #fff; color: var(--text); border: 1px solid var(--border-strong); border-radius: 6px; font: inherit; }
+  .ot textarea:focus, .ot input:focus, .ot select:focus { outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .15); }
   .ot .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-  .ot table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .ot th, .ot td { padding: 6px 8px; border-bottom: 1px solid #222; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Collapsible connection panel — keeps the noisy setup out of the way once captured. */
+  .ot details.conn { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+  .ot details.conn > summary { list-style: none; cursor: pointer; padding: 14px 16px;
+    display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--text); }
+  .ot details.conn > summary::-webkit-details-marker { display: none; }
+  .ot details.conn > summary::before { content: '▸'; color: var(--text3); transition: transform .15s; font-weight: 400; }
+  .ot details.conn[open] > summary::before { transform: rotate(90deg); }
+  .ot details.conn > summary .chip { font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; }
+  .ot details.conn > summary .chip.ok { background: var(--success-light); color: var(--success); }
+  .ot details.conn > summary .chip.err { background: var(--error-light); color: var(--error); }
+  .ot details.conn > summary .chip.idle { background: var(--surface-hover); color: var(--text3); }
+  .ot details.conn .body { padding: 0 16px 16px; }
+
+  /* Controls row */
+  .ot .controls { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+  .ot .controls .field { flex: 0 0 auto; }
+  .ot .controls .field.month select { min-width: 150px; }
+  .ot .controls .field.std input { width: 90px; }
+
+  /* Table */
+  .ot .wrap { overflow-x: auto; }
+  .ot table { width: 100%; border-collapse: collapse; }
+  .ot th, .ot td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right;
+    font-variant-numeric: tabular-nums; }
   .ot th:first-child, .ot td:first-child { text-align: left; }
-  .ot tr.short td { color: #c97; }
-  .ot tr.push td { color: #7c7; }
-  .ot .summary { display: flex; gap: 24px; margin: 12px 0; font-size: 15px; flex-wrap: wrap; }
-  .ot button { padding: 10px 18px; border-radius: 8px; border: 0; background: #3a6df0; color: #fff;
-    font: inherit; cursor: pointer; }
+  .ot th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text3); font-weight: 600; }
+  .ot tbody tr { color: var(--text); }
+  .ot tr.muted td { color: var(--text3); }
+  .ot tr.short td .dev { color: var(--warning); font-weight: 600; }
+  .ot tr.push { background: var(--success-light); }
+  .ot tr.push td .dev { color: var(--success); font-weight: 600; }
+  .ot td .day { font-weight: 600; color: var(--text); }
+  .ot tr.muted td .day { color: var(--text3); font-weight: 500; }
+  .ot .wkend { display: inline-block; margin-left: 8px; font-size: 10px; font-weight: 600; padding: 1px 7px;
+    border-radius: 999px; background: var(--primary-light); color: var(--primary-dark); vertical-align: middle; }
+  .ot .editot { width: 72px; text-align: right; }
+  .ot .legend { color: var(--text2); font-size: 12px; margin: 10px 2px 0; max-width: 70ch; }
+
+  /* What-will-push panel */
+  .ot .pushbox { border: 1px solid var(--success); background: var(--success-light); border-radius: 12px;
+    padding: 16px; margin: 16px 0; }
+  .ot .pushbox .big { font-size: 18px; color: var(--text); }
+  .ot .pushbox .big b { color: var(--success); font-size: 22px; }
+  .ot .pushbox .dec { color: var(--text2); font-size: 13px; }
+  .ot .pushbox .days { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+  .ot .pushbox .days .d { font-size: 12px; background: #fff; color: var(--success);
+    border: 1px solid rgba(var(--success-rgb), .35); border-radius: 6px; padding: 3px 9px; font-variant-numeric: tabular-nums; }
+  .ot .pushbox .days .none { color: var(--text3); font-size: 13px; }
+  .ot .pushbox .secondary { color: var(--text2); font-size: 13px; margin-top: 8px; }
+
+  .ot button { padding: 10px 18px; border-radius: 8px; border: 0; background: var(--primary); color: #fff;
+    font: inherit; font-weight: 600; cursor: pointer; }
+  .ot button:hover:not(:disabled) { background: var(--primary-hover); }
   .ot button:disabled { opacity: .5; cursor: not-allowed; }
   .ot .status { font-size: 12px; }
-  .ot .status.ok { color: #7c7; } .ot .status.err { color: #f77; }
-  .ot .editot { width: 70px; text-align: right; }
-  .ot .wrap { overflow-x: auto; }
-  .ot a.back { color: #6af; font-size: 13px; }
+  .ot .status.ok { color: var(--success); } .ot .status.err { color: var(--error); }
+  .ot a.back { color: var(--primary-dark); font-size: 13px; text-decoration: none; }
+  .ot a.back:hover { text-decoration: underline; }
 </style>
 </head>
 <body class="ot">
 <a class="back" href="/">← Work-log Pusher</a>
 <h1>Overtime → Expenses</h1>
-<p class="sub">Monthly overtime beyond an 8-hour day. Small overtime carries forward until it reaches 30 minutes, then it's pushed as an expense for that day.</p>
+<p class="sub">Overtime beyond an 8-hour weekday (weekends count fully). Small overtime banks up day to day; once it reaches 30 minutes it's released as a pushable expense.</p>
 
-<div class="card">
-  <label>Paste a cURL from an ActiveCollab <b>expense</b> request (Network tab → Copy as cURL)</label>
-  <textarea id="curl" rows="4" placeholder="curl 'http://…/projects/6070/expenses' -H 'X-Angie-CsrfValidator: …' -b '…' --data-raw '{&quot;category_id&quot;:2,&quot;user_id&quot;:748,&quot;task_id&quot;:…}'"></textarea>
-  <div class="grid" style="margin-top:10px">
-    <div><label>Base URL</label><input id="base" /></div>
-    <div><label>Project ID</label><input id="projectId" /></div>
-    <div><label>Category ID</label><input id="categoryId" /></div>
-    <div><label>User ID</label><input id="userId" /></div>
-    <div><label>Task ID</label><input id="taskId" /></div>
-    <div><label>Source</label><input id="source" value="project_time" /></div>
-    <div><label>Billable (0/1)</label><input id="billable" value="1" /></div>
+<details class="conn" id="conn">
+  <summary>Connection &amp; settings <span id="connchip" class="chip idle">not connected</span></summary>
+  <div class="body">
+    <label>Paste a cURL from an ActiveCollab <b>expense</b> request (Network tab → Copy as cURL)</label>
+    <textarea id="curl" rows="4" placeholder="curl 'http://…/projects/6070/expenses' -H 'X-Angie-CsrfValidator: …' -b '…' --data-raw '{&quot;category_id&quot;:2,&quot;user_id&quot;:748,&quot;task_id&quot;:…}'"></textarea>
+    <div class="grid" style="margin-top:10px">
+      <div><label>Base URL</label><input id="base" /></div>
+      <div><label>Project ID</label><input id="projectId" /></div>
+      <div><label>Category ID</label><input id="categoryId" /></div>
+      <div><label>User ID</label><input id="userId" /></div>
+      <div><label>Task ID</label><input id="taskId" /></div>
+      <div><label>Source</label><input id="source" value="project_time" /></div>
+      <div><label>Billable (0/1)</label><input id="billable" value="1" /></div>
+    </div>
+    <p id="auth" class="status"></p>
   </div>
-  <p id="auth" class="status"></p>
-</div>
+</details>
 
 <div class="card">
-  <div class="grid">
-    <div><label>Month</label><select id="month"></select></div>
-    <div><label>Standard day (h)</label><input id="standard" value="8" /></div>
+  <div class="controls">
+    <div class="field month"><label>Month</label><select id="month"></select></div>
+    <div class="field std"><label>Standard day (h)</label><input id="standard" value="8" /></div>
   </div>
   <div class="wrap">
     <table id="tbl">
-      <thead><tr><th>Date</th><th>Hours</th><th>Deviation</th><th>Carry</th><th>Push OT (h:mm)</th><th>Status</th></tr></thead>
+      <thead><tr>
+        <th>Date</th><th>Logged</th><th>Over&ndash;under</th><th>Banked</th><th>Will push (h:mm)</th><th>Status</th>
+      </tr></thead>
       <tbody></tbody>
     </table>
   </div>
-  <div class="summary">
-    <div>Net month: <b id="net">0</b> h</div>
-    <div>To push: <b id="topush">0:00</b> <span id="topushdec" style="color:#888"></span></div>
-    <div>Carry left: <b id="remainder">0</b> h</div>
+  <p class="legend">“Banked” is overtime carried forward; it releases into “Will push” once it reaches 30 min. Weekends have no 8-hour baseline, so every weekend hour is overtime.</p>
+
+  <div class="pushbox">
+    <div class="big">Will push <b id="topush">0:00</b> <span id="topushdec" class="dec"></span></div>
+    <div class="days" id="pushdays"></div>
+    <div class="secondary">Net month <b id="net">0</b> h · Carry left <b id="remainder">0</b> h</div>
   </div>
+
   <button id="push" disabled>Push overtime as expenses</button>
 </div>
 
@@ -75,9 +134,18 @@ import { computeMonthlyOvertime, groupByMonth, isoDateFromFile, parseHoursDecima
 
 const $ = (id) => document.getElementById(id);
 const LS = 'ac_overtime_v1';
+const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 let files = [];           // /api/worklogs metas
 let current = { rows: [], net: 0, remainder: 0 };
 let cookie = '', csrf = '';
+
+// "2026-06-27" -> "Sat 27" (UTC parse, no timezone drift).
+function weekdayLabel(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
+  if (!m) return iso || '';
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return `${WD[d.getUTCDay()]} ${+m[3]}`;
+}
 
 function loadLS() { try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch { return {}; } }
 function saveLS() {
@@ -92,9 +160,15 @@ function grabQuoted(s, flag) {
   m = s.match(new RegExp(flag + '\\s+"((?:[^"\\\\]|\\\\.)*)"')); if (m) return m[1].replace(/\\"/g, '"');
   return '';
 }
+function setConnChip() {
+  const chip = $('connchip');
+  if (!$('curl').value.trim()) { chip.className = 'chip idle'; chip.textContent = 'not connected'; return; }
+  if (cookie && csrf) { chip.className = 'chip ok'; chip.textContent = 'session captured ✓'; }
+  else { chip.className = 'chip err'; chip.textContent = 'needs cookie / CSRF'; }
+}
 function parseCurl() {
   const c = $('curl').value.trim();
-  if (!c) { cookie = ''; csrf = ''; $('auth').textContent = ''; return; }
+  if (!c) { cookie = ''; csrf = ''; $('auth').textContent = ''; setConnChip(); return; }
   const url = (c.match(/(https?:\/\/[^\s'"]+)/) || [])[1] || '';
   const pid = (url.match(/\/projects\/(\d+)/) || c.match(/\/projects\/(\d+)/) || [])[1] || '';
   let b = (url.match(/^(https?:\/\/.*\/api\/v\d+)/) || [])[1] || '';
@@ -113,6 +187,8 @@ function parseCurl() {
   if (!cookie) miss.push('cookie'); if (!csrf) miss.push('CSRF');
   $('auth').className = 'status ' + (miss.length ? 'err' : 'ok');
   $('auth').textContent = miss.length ? 'Missing ' + miss.join(' & ') + ' — check the cURL' : 'Session captured ✓';
+  setConnChip();
+  if (!miss.length) $('conn').open = false;   // tidy away once we have a valid session
   saveLS();
 }
 
@@ -146,11 +222,12 @@ function render() {
   tb.innerHTML = '';
   current.rows.forEach((row, i) => {
     const tr = document.createElement('tr');
-    tr.className = row.deviation < 0 ? 'short' : (row.pushedOT > 0 ? 'push' : '');
+    tr.className = row.pushedOT > 0 ? 'push' : (row.deviation < 0 ? 'short' : 'muted');
+    const badge = row.isWeekend ? '<span class="wkend">weekend · all OT</span>' : '';
     tr.innerHTML =
-      `<td>${row.date}</td>` +
+      `<td><span class="day">${weekdayLabel(row.date)}</span>${badge}</td>` +
       `<td>${row.hours.toFixed(2)}</td>` +
-      `<td>${row.deviation > 0 ? '+' : ''}${row.deviation.toFixed(2)}</td>` +
+      `<td><span class="dev">${row.deviation > 0 ? '+' : ''}${row.deviation.toFixed(2)}</span></td>` +
       `<td>${row.carryAfter.toFixed(2)}</td>` +
       `<td><input class="editot" data-i="${i}" value="${decimalToHHMM(row.pushedOT)}" title="Type as h:mm (e.g. 0:30) or a decimal" /></td>` +
       `<td class="status" data-status="${i}"></td>`;
@@ -170,15 +247,22 @@ function render() {
 }
 
 function refreshTotals() {
-  const topush = current.rows.reduce((s, r) => s + (r.pushedOT > 0 ? r.pushedOT : 0), 0);
-  $('net').textContent = current.net.toFixed(2);
+  const pushRows = current.rows.filter((r) => r.pushedOT > 0);
+  const topush = pushRows.reduce((s, r) => s + r.pushedOT, 0);
   $('topush').textContent = decimalToHHMM(topush);
-  $('topushdec').textContent = '· ' + topush.toFixed(2) + ' h (pushed as decimal)';
+  $('topushdec').textContent = pushRows.length
+    ? `across ${pushRows.length} day${pushRows.length > 1 ? 's' : ''} · ${topush.toFixed(2)} h`
+    : '';
+  const days = $('pushdays');
+  days.innerHTML = pushRows.length
+    ? pushRows.map((r) => `<span class="d">${weekdayLabel(r.date)}: ${decimalToHHMM(r.pushedOT)}</span>`).join('')
+    : '<span class="none">Nothing to push this month.</span>';
+  $('net').textContent = current.net.toFixed(2);
   $('remainder').textContent = current.remainder.toFixed(2);
 }
 
 async function push() {
-  if (!cookie || !csrf) { alert('Paste a valid expense cURL first (cookie + CSRF needed).'); return; }
+  if (!cookie || !csrf) { alert('Paste a valid expense cURL first (cookie + CSRF needed).'); $('conn').open = true; return; }
   const pushRows = current.rows.filter((r) => r.pushedOT > 0);
   if (!pushRows.length) { alert('No overtime to push for this month.'); return; }
   const expenses = pushRows.map((r) => ({
@@ -234,7 +318,7 @@ $('curl').addEventListener('input', () => { parseCurl(); });
 $('month').addEventListener('change', render);
 $('standard').addEventListener('change', render);
 $('push').addEventListener('click', push);
-if ($('curl').value.trim()) parseCurl();
+if ($('curl').value.trim()) parseCurl(); else $('conn').open = true;   // open setup when there's nothing captured yet
 loadWorklogs();
 
 // live refresh when worklog files change

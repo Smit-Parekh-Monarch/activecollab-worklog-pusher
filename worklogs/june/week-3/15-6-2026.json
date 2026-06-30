@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Replaced the raw dropdowns across the resignation and offboarding flow with the shared SelectField, adding an inline web dropdown mode and a richer employee picker. Committed and pushed the work on a clean branch, traced the backend to confirm Team/Project Lead resignations surface to their manager, and diagnosed the My Resignation loader as a backend request hang rather than a frontend bug.",
   "tasks": [
     {
       "name": "Offboarding — Dropdown UI (SelectField) Across Resignation Flow",
@@ -35,6 +36,13 @@
       "hours": "00:30",
       "body": "Diagnosed the My Resignation page stuck on the loader as a backend request hang, not a frontend bug",
       "summary": "- Identified the full-page loader is gated on useGetMyExitQuery (GET my exit)\n- Confirmed from the Network panel that all API requests were pending (backend hang, one 200 after 20s)\n- Tied it to the Spring async/SSE filter-chain stack trace (dropped notification/ws streams saturating threads)\n- Recommended a backend restart + hard reload; confirmed the frontend changes were unrelated"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "0.42",
+      "summary": "Replaced the raw dropdowns across the resignation and offboarding flow with the shared SelectField, adding an inline web dropdown mode and a richer employee picker. Committed and pushed the work on a clean branch, traced the backend to confirm Team/Project Lead resignations surface to their manager, and diagnosed the My Resignation loader as a backend request hang rather than a frontend bug.",
+      "at": "2026-06-29T18:58:15.847Z"
     }
   ]
 }

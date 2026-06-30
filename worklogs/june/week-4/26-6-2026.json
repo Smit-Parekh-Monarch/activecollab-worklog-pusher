@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Built the unified, config-driven Requests hub covering shift, attendance, meal, OT and leave — one shell with per-type config over the existing APIs, AG Grid tables, role-driven views and pending badges. Added the attendance request detail modal with approve/reject, polished the hub's tables and modals, and fixed a 500 on pending attendance edits caused by a missing migration.",
   "standup": {
     "name": "Smit Parekh",
     "project": "MIPL Portal",

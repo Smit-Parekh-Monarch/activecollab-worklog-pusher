@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseHoursDecimal, decimalToHHMM, isoDateFromFile, monthKeyOf, groupByMonth,
-  computeMonthlyOvertime, STANDARD_DAY, MIN_RELEASE,
+  computeMonthlyOvertime, isWeekend, STANDARD_DAY, MIN_RELEASE,
 } from '../public/overtime-core.js';
 
 test('constants', () => {
@@ -83,6 +83,36 @@ test('computeMonthlyOvertime: leftover under 30 min is remainder, not pushed', (
   assert.deepEqual(r.rows.map(x => x.pushedOT), [0, 0]);
   assert.equal(r.totalPushed, 0);
   assert.equal(r.remainder, 0.2);
+});
+
+test('isWeekend: Sat/Sun true, weekdays false (no tz drift)', () => {
+  assert.equal(isWeekend('2026-06-27'), true);   // Saturday
+  assert.equal(isWeekend('2026-06-28'), true);   // Sunday
+  assert.equal(isWeekend('2026-06-26'), false);  // Friday
+  assert.equal(isWeekend('2026-06-22'), false);  // Monday
+});
+
+test('computeMonthlyOvertime: weekend day has 0 standard, pushes all its hours', () => {
+  const r = computeMonthlyOvertime([
+    { date: '2026-06-26', hours: 8 },     // Fri, exactly standard -> neutral
+    { date: '2026-06-27', hours: 9.17 },  // Sat (9:10) -> all overtime
+  ]);
+  assert.deepEqual(r.rows.map(x => x.deviation), [0, 9.17]);
+  assert.deepEqual(r.rows.map(x => x.pushedOT), [0, 9.17]);
+  assert.deepEqual(r.rows.map(x => x.isWeekend), [false, true]);
+  assert.deepEqual(r.rows.map(x => x.standard), [8, 0]);
+  assert.equal(r.net, 9.17);
+  assert.equal(r.totalPushed, 9.17);
+  assert.equal(r.remainder, 0);
+});
+
+test('computeMonthlyOvertime: weekendStandard is overridable via opts', () => {
+  const r = computeMonthlyOvertime(
+    [{ date: '2026-06-27', hours: 9.17 }],
+    { weekendStandard: 8 },
+  );
+  assert.equal(r.rows[0].deviation, 1.17);
+  assert.equal(r.rows[0].standard, 8);
 });
 
 test('computeMonthlyOvertime: exactly 8h is neutral; sorts by date', () => {

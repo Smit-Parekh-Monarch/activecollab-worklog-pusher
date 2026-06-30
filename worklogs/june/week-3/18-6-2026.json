@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Built the Exit Process UI — components, stage metadata and state-derivation helpers, and the domain types — and added the email functionality and enhancements on the backend. Carried on the Exited Employees register and the Monarch relieving-letter template alongside it.",
   "standup": {
     "name": "Smit Parekh",
     "project": "MIPL Portal",
@@ -43,6 +44,13 @@
       "hours": "01:00",
       "body": "Continued the Monarch relieving-letter template in RelievingLetterServiceImpl.buildHtml.",
       "summary": "- Reproduced Monarch relieving-letter template layout\n- Fixed signatory, footer, and gender-aware salutation\n- Backend change still uncommitted on feat/exited-employees"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "1.67",
+      "summary": "Built the Exit Process UI — components, stage metadata and state-derivation helpers, and the domain types — and added the email functionality and enhancements on the backend. Carried on the Exited Employees register and the Monarch relieving-letter template alongside it.",
+      "at": "2026-06-29T18:58:18.887Z"
     }
   ]
 }

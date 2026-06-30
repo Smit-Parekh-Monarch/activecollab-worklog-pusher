@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Built the multi-select dropdown filter and the customizable DataTable header for the Users screen, wiring the filter state into the user-list query. Reviewed and tested the manager-role leave, attendance and shift-change request flows, kept the branch in sync with dev, and went through the team's recent commits across the app and backend.",
   "tasks": [
     {
       "name": "Filter UI — Multi-Select Dropdown & DataTable Header",
@@ -28,6 +29,13 @@
       "hours": "01:00",
       "body": "MIPL codebase research and team commit review",
       "summary": "- Reviewed full commit history across monarch-innovation-app and monarch-innovation-backend\n- Analysed today's team commits (67 total) across workflow, meals, attendance, and UI modules\n- Investigated branch state, author breakdown, and PR merge status for planning"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "0.65",
+      "summary": "Built the multi-select dropdown filter and the customizable DataTable header for the Users screen, wiring the filter state into the user-list query. Reviewed and tested the manager-role leave, attendance and shift-change request flows, kept the branch in sync with dev, and went through the team's recent commits across the app and backend.",
+      "at": "2026-06-29T18:58:12.495Z"
     }
   ]
 }

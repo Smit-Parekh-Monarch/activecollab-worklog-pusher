@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Hardened the headless DOCX-to-PDF conversion to run reliably under the Windows service account — isolated profile, a real timeout, and a cached path with background warm-up. Reproduced the MD letterhead and exact letter wording, added a dual Word/HTML letter engine, embedded the Arial font, and diagnosed a stage deploy failure as a stale build plus an unrelated JVM net.dll shutdown crash.",
   "standup": {
     "name": "Smit Parekh",
     "project": "MIPL Portal",
@@ -55,6 +56,13 @@
       "hours": "00:39",
       "body": "Continued the letterhead-merge body-detection fix in DocxTemplateService.",
       "summary": "- isFooterAddressElement scoped to CIN/GSTIN/DUNS + Dwarkesh markers\n- Folded into the broader TEMPLATE-engine pipeline now deployed\n- End-to-end body verification still pending on a working stage LibreOffice run"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "0.55",
+      "summary": "Hardened the headless DOCX-to-PDF conversion to run reliably under the Windows service account — isolated profile, a real timeout, and a cached path with background warm-up. Reproduced the MD letterhead and exact letter wording, added a dual Word/HTML letter engine, embedded the Arial font, and diagnosed a stage deploy failure as a stale build plus an unrelated JVM net.dll shutdown crash.",
+      "at": "2026-06-29T18:58:21.596Z"
     }
   ]
 }

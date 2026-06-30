@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Continued the Offboarding module: built the exit-settlement UI with a reusable right-side drawer, and added experience and relieving letter generation (HTML-to-PDF, gender-aware wording) gated on a finalized settlement. Added a generate-then-release flow with ownership-scoped employee downloads, redesigned the documents section as per-letter cards, and merged dev with the migration renumbering.",
   "tasks": [
     {
       "name": "Offboarding — Exit Settlement UI & Right-Drawer",

@@ -1,0 +1,106 @@
+/* Dashboard app-shell: sidebar + topbar. Uses the design tokens from globals.css. */
+
+/* Fixed-height app shell: the shell fills the viewport and never scrolls; only
+   the main content column scrolls. The sidebar stays pinned. (globals.css keeps
+   body at overflow:hidden, which is exactly what we want here.) */
+html, body { height: 100%; overflow: hidden; }
+
+.dash { display: flex; height: 100vh; overflow: hidden; background: var(--bg); color: var(--text); }
+
+/* sidebar — fixed full-height, scrolls internally only if the nav is long */
+.dash-side {
+  width: 216px; flex-shrink: 0; background: var(--ink); color: var(--ink-text);
+  display: flex; flex-direction: column; height: 100vh; overflow-y: auto;
+}
+.dash-logo {
+  display: flex; align-items: center; gap: 9px; padding: 18px 18px 16px;
+  font-weight: 800; font-size: 16px; letter-spacing: -.01em;
+}
+.dash-logo ion-icon { font-size: 22px; color: var(--primary); }
+.dash-nav { display: flex; flex-direction: column; gap: 2px; padding: 6px 10px; flex: 1; }
+.dash-navitem {
+  display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 9px;
+  color: var(--ink-text2); text-decoration: none; font-size: 14px; font-weight: 600;
+  transition: background .12s, color .12s;
+}
+.dash-navitem ion-icon { font-size: 18px; }
+.dash-navitem:hover { background: rgba(255,255,255,.06); color: var(--ink-text); }
+.dash-navitem.on { background: var(--primary); color: #fff; }
+.dash-navsep { height: 1px; background: var(--ink-line); margin: 10px 12px; }
+.dash-side-foot { padding: 14px 18px; font-size: 11px; color: var(--ink-text3); }
+
+/* main column */
+.dash-main { flex: 1; min-width: 0; height: 100vh; overflow-y: auto; overflow-x: hidden; }
+.dash-top {
+  height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+  padding: 0 22px; border-bottom: 1px solid var(--border); background: var(--card);
+  position: sticky; top: 0; z-index: 20;
+}
+.dash-conn {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  border: 1px solid var(--border-strong); background: var(--surface);
+  border-radius: 999px; padding: 6px 13px; font: inherit; font-size: 13px; font-weight: 600;
+  color: var(--text2);
+}
+.dash-conn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); }
+.dash-conn.on { color: var(--success); border-color: rgba(var(--success-rgb), .4); background: var(--success-light); }
+.dash-conn.on .dot { background: var(--success); box-shadow: 0 0 0 3px rgba(var(--success-rgb), .2); }
+.dash-conn.off .dot { background: var(--error); }
+.dash-conn ion-icon { font-size: 14px; }
+.dash-portal {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700;
+  color: var(--primary-dark); background: var(--primary-light);
+  border: 1px solid rgba(var(--primary-rgb), .3); border-radius: 999px; padding: 5px 11px;
+}
+.dash-portal ion-icon { font-size: 13px; }
+.dash-forget {
+  margin-left: auto; border: 1px solid var(--border); background: var(--surface);
+  border-radius: 8px; width: 32px; height: 32px; cursor: pointer; color: var(--text3);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.dash-forget:hover { color: var(--error); border-color: rgba(var(--error-rgb), .4); }
+
+/* connect drawer — sticks right under the top bar so it's visible no matter
+   how far the page is scrolled (it used to scroll away with the body). */
+.dash-connect {
+  position: sticky; top: 56px; z-index: 19;
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 16px 22px; display: flex; flex-direction: column; gap: 10px;
+  box-shadow: var(--shadow-md);
+}
+.dash-connect label { font-size: 12.5px; color: var(--text2); max-width: 70ch; }
+.dash-connect textarea {
+  width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border-strong);
+  border-radius: 8px; font: 12px var(--mono); background: #fff; color: var(--text); resize: vertical;
+}
+.dash-connect-actions { display: flex; align-items: center; gap: 12px; }
+.dash-msg { font-size: 13px; font-weight: 600; }
+.dash-msg.ok { color: var(--success); }
+.dash-msg.err { color: var(--error); }
+
+.dash-body { padding: 24px; max-width: 1100px; width: 100%; }
+
+/* overview cards (dashboard home) */
+.ov-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 4px 0 22px; }
+.ov-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow-sm); }
+.ov-card .k { font-size: 12px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 6px; }
+.ov-card .k ion-icon { font-size: 15px; color: var(--primary-dark); }
+.ov-card .v { font-size: 30px; font-weight: 800; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.ov-card .s { font-size: 12.5px; color: var(--text2); margin-top: 2px; }
+.ov-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.ov-tool {
+  display: flex; gap: 13px; align-items: flex-start; text-decoration: none; color: inherit;
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 17px 18px;
+  box-shadow: var(--shadow-sm); transition: border-color .12s, transform .12s;
+}
+.ov-tool:hover { border-color: var(--primary); transform: translateY(-1px); }
+.ov-tool .ic { width: 40px; height: 40px; border-radius: 10px; background: var(--primary-light); color: var(--primary-dark);
+  display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; }
+.ov-tool h3 { margin: 0 0 3px; font-size: 15px; }
+.ov-tool p { margin: 0; font-size: 12.5px; color: var(--text2); line-height: 1.45; }
+.ov-h { font-size: 13px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin: 4px 0 12px; }
+
+@media (max-width: 720px) {
+  .dash-side { width: 56px; }
+  .dash-logo span, .dash-navitem span, .dash-side-foot { display: none; }
+}

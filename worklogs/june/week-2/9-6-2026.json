@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Added the weekly filter to the birthday screen and fixed the react-native-svg version that was breaking npm ci. Carried on the profile screen redesign and its API fixes, switched profile photos to an authenticated fetch, and made the API base URL environment-driven for the production web build.",
   "tasks": [
     {
       "name": "Weekly Birthday Filter — feat & fix",
@@ -28,6 +29,13 @@
       "hours": "02:00",
       "body": "API base URL config and production web build",
       "summary": "- Made API base URL environment-driven via env config\n- Added production web build configuration"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "1.01",
+      "summary": "Added the weekly filter to the birthday screen and fixed the react-native-svg version that was breaking npm ci. Carried on the profile screen redesign and its API fixes, switched profile photos to an authenticated fetch, and made the API base URL environment-driven for the production web build.",
+      "at": "2026-06-29T18:58:11.127Z"
     }
   ]
 }

@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Kicked off the Offboarding module: wrote the requirements and per-feature design specs, then built the Resignation Request end to end — the V93 migration, entities and a full state-machine service on the Spring Boot backend, plus the employee and HR screens with RTK Query on the frontend. Added hierarchy-scoped visibility so managers see only their direct reports, applied V93 locally, and refined the submit form and status timeline.",
   "tasks": [
     {
       "name": "Offboarding Module — Requirements & Design Specs",

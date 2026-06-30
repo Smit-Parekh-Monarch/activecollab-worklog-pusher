@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Built the read-only Exited Employees register — a backend listing API over the legacy exit dates with filters and Excel export, plus a frontend screen with search, filters and infinite scroll. Blocked paid (casual) leave during an active notice period, rewrote the relieving letter to match the official Monarch template, and resolved a sidebar merge with dev.",
   "standup": {
     "name": "Smit Parekh",
     "project": "MIPL Portal",
@@ -40,6 +41,13 @@
       "hours": "00:30",
       "body": "Pulled dev into feat/exited-employees and resolved the AppSidebar.tsx merge conflict",
       "summary": "- Kept dev's new PMS nav section (Vendors / Projects / Item Catalogue / Purchase Requests + pmsKey gating) alongside my Exited Employees item\n- NavItem interface carries both pmsKey and hrAdminOnly; filterItem keeps both gates\n- Completed the merge commit; backend had no conflict and is already in sync with dev"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "0.50",
+      "summary": "Built the read-only Exited Employees register — a backend listing API over the legacy exit dates with filters and Excel export, plus a frontend screen with search, filters and infinite scroll. Blocked paid (casual) leave during an active notice period, rewrote the relieving letter to match the official Monarch template, and resolved a sidebar merge with dev.",
+      "at": "2026-06-29T18:58:16.946Z"
     }
   ]
 }

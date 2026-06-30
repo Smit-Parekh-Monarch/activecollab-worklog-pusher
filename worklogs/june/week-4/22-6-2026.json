@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Merged the Exited Employees register to stage — backend API, Excel export and the infinite-scroll screen with admin/HR nav. Wired the resignation view-permission gates, added employee F&F acknowledgment and KT-document management on the backend, finalized the relieving-letter template, and fixed the CC add and stage buttons to show proper loading states.",
   "tasks": [
     {
       "name": "Exited Employees register",

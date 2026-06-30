@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Built the Custom CRM marketing page from the Figma designs — scaffolded the route, dictionary and nav, then completed the hero, overview, services, process, tech, FAQ and CTA sections. Applied the design-system tokens, handled the responsive styling, and verified the full page end to end.",
   "tasks": [
     {
       "name": "Custom CRM Page — Setup, Hero & Overview",

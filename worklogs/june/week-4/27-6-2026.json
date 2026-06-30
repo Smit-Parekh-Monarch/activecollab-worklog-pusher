@@ -1,0 +1,20 @@
+{
+  "pushed": true,
+  "ot_description": "Came in on the Saturday to push the offboarding and letter-generation work forward ahead of the deadline. Outside the standard week, so the full 9 hours 10 minutes counts as overtime.",
+  "tasks": [
+    {
+      "name": "Saturday overtime — Jun 27",
+      "date": "2026-06-27",
+      "hours": "09:10",
+      "body": "Saturday overtime",
+      "summary": "Overtime work on Saturday June 27"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "9.17",
+      "summary": "Came in on the Saturday to push the offboarding and letter-generation work forward ahead of the deadline. Outside the standard week, so the full 9 hours 10 minutes counts as overtime.",
+      "at": "2026-06-29T18:58:24.325Z"
+    }
+  ]
+}

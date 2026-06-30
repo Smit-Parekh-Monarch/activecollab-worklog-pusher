@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Renamed the service routes to cleaner slugs and flattened the nested digital-engineering pages up to the top level, updating the nav, mega-menu, footer, sitemap and section links with old-to-new redirects. Merged the latest dev, verified the build, opened the PR, and added the Custom Injection Molding entry to the mega-menu.",
   "tasks": [
     {
       "name": "Service Slug Rename & Flatten Refactor",

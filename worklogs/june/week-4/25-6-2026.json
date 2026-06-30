@@ -1,5 +1,6 @@
 {
   "pushed": true,
+  "ot_description": "Moved the experience, relieving and F&F documents onto a pure-Java JasperReports engine with real templates, gating the letterhead to production only. Consolidated the offboarding screens under a collapsible menu group, standardized the letter cards on a single Generate PDF button with shadcn components, and fixed the employee My Resignation view to live-update through the richer exit-process screen.",
   "standup": {
     "name": "Smit Parekh",
     "project": "MIPL Portal",
@@ -79,6 +80,13 @@
       "hours": "00:18",
       "body": "Reordered the employee revert view so the submit form is primary and history is collapsible.",
       "summary": "- Moved the Submit Resignation form directly under the status notice\n- History moved into a collapsed Previous history section that expands on click\n- Rendered the toast in this branch for submit feedback"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "2.00",
+      "summary": "Moved the experience, relieving and F&F documents onto a pure-Java JasperReports engine with real templates, gating the letterhead to production only. Consolidated the offboarding screens under a collapsible menu group, standardized the letter cards on a single Generate PDF button with shadcn components, and fixed the employee My Resignation view to live-update through the richer exit-process screen.",
+      "at": "2026-06-29T18:58:23.010Z"
     }
   ]
 }

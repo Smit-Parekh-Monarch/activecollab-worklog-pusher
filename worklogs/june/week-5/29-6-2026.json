@@ -1,0 +1,47 @@
+{
+  "pushed": true,
+  "ot_description": "Reworked the full & final settlement — the window now starts from the earliest unpaid month, leave is relabelled to CL/LWP with approval gating, and the complete workflow breakdown is surfaced in the settlement card and F&F PDF. Brought the experience and relieving letters to the official template with gender-aware wording and the branded letterhead, and stood up a local prod environment kept in sync with dev.",
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [],
+    "next": [
+      "Keep the offboarding PRs current as dev advances"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "Offboarding F&F settlement enhancements",
+      "date": "2026-06-29",
+      "hours": "03:30",
+      "body": "Reworked the full & final settlement behaviour, wording and breakdown",
+      "summary": "- Settlement window now starts from the earliest unpaid month (salary paid on the 10th)\n- Relabelled leave to CL/LWP and required F&F approval before issuing, while allowing pre-approval drafts\n- Surfaced the full workflow breakdown (expected/actual/payable/overtime/short hours, present days) in the settlement card and F&F PDF\n- Fixed the generation 409 by reusing the existing monthly workflow"
+    },
+    {
+      "name": "Offboarding letters & document polish",
+      "date": "2026-06-29",
+      "hours": "03:00",
+      "body": "Brought the experience and relieving letters to the official template",
+      "summary": "- Matched the experience certificate to the provided template with dynamic, gender-aware wording (Mr./Ms., he/she)\n- Aligned the relieving letter format and tightened signature spacing across both\n- Pinned action-button loading spinners to the clicked button in the offboarding flow\n- Enabled the branded letterhead on generated letters in production"
+    },
+    {
+      "name": "Local prod environment & dev sync",
+      "date": "2026-06-29",
+      "hours": "02:00",
+      "body": "Stood up a local prod environment and kept the branch current",
+      "summary": "- Wrote start-local-prod.ps1 and restored the local monarch-portal-prod DB from a prod dump\n- Granted ADMIN to smitp@monovative.com for local testing\n- Merged latest dev into both repos and verified the backend compile and frontend build"
+    }
+  ],
+  "ot_pushed": [
+    {
+      "value": "0.67",
+      "summary": "Reworked the full & final settlement — the window now starts from the earliest unpaid month, leave is relabelled to CL/LWP with approval gating, and the complete workflow breakdown is surfaced in the settlement card and F&F PDF. Brought the experience and relieving letters to the official template with gender-aware wording and the branded letterhead, and stood up a local prod environment kept in sync with dev.",
+      "at": "2026-06-29T19:35:10.434Z"
+    },
+    {
+      "value": "0.67",
+      "summary": "Reworked the full & final settlement — the window now starts from the earliest unpaid month, leave is relabelled to CL/LWP with approval gating, and the complete workflow breakdown is surfaced in the settlement card and F&F PDF. Brought the experience and relieving letters to the official template with gender-aware wording and the branded letterhead, and stood up a local prod environment kept in sync with dev.",
+      "at": "2026-06-29T19:38:08.932Z"
+    }
+  ]
+}

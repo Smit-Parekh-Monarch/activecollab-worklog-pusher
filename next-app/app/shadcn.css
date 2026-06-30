@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn tokens, NAMESPACED as --sd-* so they never collide with the app's own
+   --primary / --border / etc. Values are tuned to the Monarch palette so shadcn
+   components sit consistently next to the existing pages. */
+:root {
+  --sd-background: 0 0% 100%;
+  --sd-foreground: 222 49% 10%;
+  --sd-card: 0 0% 100%;
+  --sd-card-foreground: 222 49% 10%;
+  --sd-popover: 0 0% 100%;
+  --sd-popover-foreground: 222 49% 10%;
+  --sd-primary: 190 73% 47%;
+  --sd-primary-foreground: 0 0% 100%;
+  --sd-secondary: 210 40% 96%;
+  --sd-secondary-foreground: 222 47% 11%;
+  --sd-muted: 210 40% 96%;
+  --sd-muted-foreground: 215 20% 45%;
+  --sd-accent: 210 40% 94%;
+  --sd-accent-foreground: 222 47% 11%;
+  --sd-destructive: 0 72% 51%;
+  --sd-destructive-foreground: 0 0% 100%;
+  --sd-success: 142 71% 36%;
+  --sd-success-foreground: 0 0% 100%;
+  --sd-warning: 32 95% 44%;
+  --sd-warning-foreground: 0 0% 100%;
+  --sd-border: 210 36% 93%;
+  --sd-input: 210 36% 90%;
+  --sd-ring: 190 73% 47%;
+  --radius: 0.75rem;
+}
