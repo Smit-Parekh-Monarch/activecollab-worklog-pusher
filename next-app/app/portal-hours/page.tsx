@@ -316,11 +316,11 @@ export default function Page() {
                 </Table>
               </div>
 
-              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                <Badge variant="success" className="mr-1">push</Badge> ≥25 min → pushable in full ·
-                <Badge variant="warning" className="mx-1">bank</Badge> &lt;25 min, accumulates (release manually) ·
-                <Badge variant="destructive" className="mx-1">short</Badge> under 8h (shown only). The bank is never moved into a push automatically.
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs leading-relaxed text-muted-foreground">
+                <Badge variant="success">push</Badge> <span>≥25 min → pushable in full ·</span>
+                <Badge variant="warning">bank</Badge> <span>&lt;25 min, accumulates (release manually) ·</span>
+                <Badge variant="destructive">short</Badge> <span>under 8h (shown only). The bank is never moved into a push automatically.</span>
+              </div>
             </>
           )}
         </CardContent>
