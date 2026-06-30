@@ -27,7 +27,8 @@ export default function Shell({ children }) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [connectOpen, setConnectOpen] = useState(false);
-  const [draft, setDraft] = useState('');
+  const [draftAc, setDraftAc] = useState('');
+  const [draftPortal, setDraftPortal] = useState('');
   const [msg, setMsg] = useState(null);
 
   const cookie = useSession((s) => s.cookie);
@@ -43,16 +44,16 @@ export default function Shell({ children }) {
 
   // avoid hydration mismatch — store is client-only
   useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { setDraft(curl || ''); }, [curl]);
+  useEffect(() => { setDraftAc(curl || ''); }, [curl]);
 
   const connected = mounted && !!(cookie && csrf);
 
-  function doConnect() {
-    const p = applyCurl(draft);
-    if (p.ok) {
-      setMsg({ ok: true, text: p.kind === 'portal' ? 'Portal token captured ✓' : 'ActiveCollab session captured ✓' });
-      setTimeout(() => setConnectOpen(false), 800);
-    } else setMsg({ ok: false, text: 'Missing ' + p.missing.join(' & ') + ' — check the cURL' });
+  // capture from one of the two boxes; applyCurl auto-detects AC vs Portal anyway
+  function capture(text: string) {
+    if (!text.trim()) { setMsg({ ok: false, text: 'Paste a cURL first' }); return; }
+    const p = applyCurl(text);
+    if (p.ok) setMsg({ ok: true, text: p.kind === 'portal' ? 'Portal token captured ✓' : 'ActiveCollab session captured ✓' });
+    else setMsg({ ok: false, text: 'Missing ' + p.missing.join(' & ') + ' — check the cURL' });
   }
 
   return (
@@ -95,7 +96,7 @@ export default function Shell({ children }) {
             </span>
           )}
           {(connected || portalOn) && (
-            <button className="dash-forget" onClick={() => { forget(); setDraft(''); setMsg(null); }} title="Forget all sessions">
+            <button className="dash-forget" onClick={() => { forget(); setDraftAc(''); setDraftPortal(''); setMsg(null); }} title="Forget all sessions">
               <ion-icon name="log-out-outline" />
             </button>
           )}
@@ -103,18 +104,30 @@ export default function Shell({ children }) {
 
         {connectOpen && (
           <div className="dash-connect">
-            <label>Paste a <b>Copy as cURL</b> — either the <b>ActiveCollab</b> request (cookie + CSRF, for work-logs &amp; overtime)
-              <i> or</i> the <b>Portal</b> <code>my-project-hours</code> request (Bearer token, for Portal Hours).
-              It&apos;s detected automatically and shared across every tool.</label>
-            <textarea rows={4} value={draft} spellCheck={false}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="curl 'http://…/projects/6070/tasks' -H 'X-Angie-CsrfValidator: …' -b '…' --data-raw '{…}'" />
-            <div className="dash-connect-actions">
-              <Button onClick={doConnect}>
-                <ion-icon name="flash-outline" />Capture session
-              </Button>
-              {msg && <span className={'dash-msg ' + (msg.ok ? 'ok' : 'err')}>{msg.text}</span>}
+            <p className="dash-connect-intro">Paste a <b>Copy as cURL</b> for each service. Each is stored once and shared across every tool.</p>
+            <div className="dash-connect-grid">
+              {/* ActiveCollab */}
+              <div className="dash-connect-col">
+                <label>ActiveCollab <span className={'chip ' + (connected ? 'on' : 'off')}>{connected ? 'active ✓' : 'needed'}</span>
+                  <span className="hint">tasks or expenses request — cookie + CSRF. For work-logs &amp; overtime push.</span>
+                </label>
+                <textarea rows={4} value={draftAc} spellCheck={false}
+                  onChange={(e) => setDraftAc(e.target.value)}
+                  placeholder="curl 'http://…/projects/6070/tasks' -H 'X-Angie-CsrfValidator: …' -b '…'" />
+                <Button size="sm" onClick={() => capture(draftAc)}><ion-icon name="flash-outline" />Capture ActiveCollab</Button>
+              </div>
+              {/* Portal */}
+              <div className="dash-connect-col">
+                <label>Portal hours <span className={'chip ' + (portalOn ? 'on' : 'off')}>{portalOn ? 'captured ✓' : 'needed'}</span>
+                  <span className="hint"><code>my-project-hours</code> request — Bearer token. For the Portal Hours page.</span>
+                </label>
+                <textarea rows={4} value={draftPortal} spellCheck={false}
+                  onChange={(e) => setDraftPortal(e.target.value)}
+                  placeholder="curl '…/api/activecollab/my-project-hours?startDate=…' -H 'authorization: Bearer …' -b 'monarch_auth=…'" />
+                <Button size="sm" onClick={() => capture(draftPortal)}><ion-icon name="cloud-download-outline" />Capture Portal</Button>
+              </div>
             </div>
+            {msg && <span className={'dash-msg ' + (msg.ok ? 'ok' : 'err')}>{msg.text}</span>}
           </div>
         )}
 

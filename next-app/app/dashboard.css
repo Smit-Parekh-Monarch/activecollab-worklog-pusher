@@ -68,7 +68,15 @@ html, body { height: 100%; overflow: hidden; }
   padding: 16px 22px; display: flex; flex-direction: column; gap: 10px;
   box-shadow: var(--shadow-md);
 }
-.dash-connect label { font-size: 12.5px; color: var(--text2); max-width: 70ch; }
+.dash-connect-intro { margin: 0; font-size: 12.5px; color: var(--text2); }
+.dash-connect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .dash-connect-grid { grid-template-columns: 1fr; } }
+.dash-connect-col { display: flex; flex-direction: column; gap: 8px; }
+.dash-connect label { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dash-connect label .hint { flex-basis: 100%; font-weight: 400; font-size: 11.5px; color: var(--text3); }
+.dash-connect label .chip { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.dash-connect label .chip.on { background: var(--success-light); color: var(--success); }
+.dash-connect label .chip.off { background: var(--surface-hover); color: var(--text3); }
 .dash-connect textarea {
   width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border-strong);
   border-radius: 8px; font: 12px var(--mono); background: #fff; color: var(--text); resize: vertical;
