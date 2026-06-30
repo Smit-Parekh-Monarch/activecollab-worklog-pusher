@@ -7,7 +7,9 @@ Monarch portal. The real app lives in **`next-app/`** (the root `public/` +
 
 ## Stack
 
-- **Next.js (App Router) + TypeScript** — lenient tsconfig (`strict:false`).
+- **Next.js 16 (App Router) + React 19 + TypeScript** — lenient tsconfig (`strict:false`).
+  Dev uses **Turbopack** (`next dev --turbopack`); `turbopack.root` is pinned in
+  `next.config.mjs` (a lockfile exists at the repo root too).
 - **Zustand + persist** — one shared session store (`lib/store.ts`), localStorage key `ac_session_v1`.
 - **Tailwind CSS + shadcn/ui** — component library for all UI controls.
 - **Pure JS math modules** (`lib/overtime-core.js`, `lib/portal-overtime.js`) covered by `node --test`.
@@ -86,6 +88,6 @@ npm test         # node --test on lib/*.test.js
 
 If `npm run` can't find `next` in git-bash, run `node node_modules/next/dist/bin/next <cmd>`.
 
-**Build quirk:** the production build occasionally throws a transient
-`PageNotFoundError: Cannot find module for page: /…` during the page-data collection phase
-(it names a different page each run). The compile itself succeeds — just re-run `next build`.
+**React 19 note:** the `ion-icon` JSX typing is declared for BOTH the classic global
+`JSX.IntrinsicElements` and the React-19 `declare module 'react' { namespace JSX }` in
+`types/global.d.ts` — keep both or the type check fails.

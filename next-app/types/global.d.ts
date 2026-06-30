@@ -3,12 +3,24 @@
 
 import type React from 'react';
 
+type IonIconProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+  name?: string;
+};
+
 declare global {
+  // global JSX namespace (TS < 19 / classic)
   namespace JSX {
     interface IntrinsicElements {
-      'ion-icon': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        name?: string;
-      };
+      'ion-icon': IonIconProps;
+    }
+  }
+}
+
+// React 19 moved the JSX namespace under the React module.
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'ion-icon': IonIconProps;
     }
   }
 }
