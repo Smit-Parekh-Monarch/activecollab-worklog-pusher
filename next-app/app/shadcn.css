@@ -6,28 +6,28 @@
    --primary / --border / etc. Values are tuned to the Monarch palette so shadcn
    components sit consistently next to the existing pages. */
 :root {
-  --sd-background: 0 0% 100%;
-  --sd-foreground: 222 49% 10%;
+  --sd-background: 40 20% 95%;
+  --sd-foreground: 40 8% 10%;
   --sd-card: 0 0% 100%;
-  --sd-card-foreground: 222 49% 10%;
+  --sd-card-foreground: 40 8% 10%;
   --sd-popover: 0 0% 100%;
-  --sd-popover-foreground: 222 49% 10%;
-  --sd-primary: 190 73% 47%;
+  --sd-popover-foreground: 40 8% 10%;
+  --sd-primary: 17 53% 50%;
   --sd-primary-foreground: 0 0% 100%;
-  --sd-secondary: 210 40% 96%;
-  --sd-secondary-foreground: 222 47% 11%;
-  --sd-muted: 210 40% 96%;
-  --sd-muted-foreground: 215 20% 45%;
-  --sd-accent: 210 40% 94%;
-  --sd-accent-foreground: 222 47% 11%;
-  --sd-destructive: 0 72% 51%;
+  --sd-secondary: 43 20% 93%;
+  --sd-secondary-foreground: 40 10% 18%;
+  --sd-muted: 43 20% 93%;
+  --sd-muted-foreground: 40 7% 58%;
+  --sd-accent: 24 60% 95%;
+  --sd-accent-foreground: 15 45% 32%;
+  --sd-destructive: 7 54% 49%;
   --sd-destructive-foreground: 0 0% 100%;
-  --sd-success: 142 71% 36%;
+  --sd-success: 146 38% 40%;
   --sd-success-foreground: 0 0% 100%;
-  --sd-warning: 32 95% 44%;
+  --sd-warning: 37 59% 43%;
   --sd-warning-foreground: 0 0% 100%;
-  --sd-border: 210 36% 93%;
-  --sd-input: 210 36% 90%;
-  --sd-ring: 190 73% 47%;
+  --sd-border: 43 17% 88%;
+  --sd-input: 43 15% 82%;
+  --sd-ring: 17 53% 50%;
   --radius: 0.75rem;
 }

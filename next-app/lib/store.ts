@@ -95,7 +95,10 @@ export interface SessionFields {
   cookie: string;
   csrf: string;
   capturedAt: number | null;
-  // Monarch portal (Bearer-token) session — used by the Portal Hours page
+  // Monarch portal (Bearer-token) session — used by the Portal Hours page.
+  // portalCurl is the raw pasted cURL, kept so the Connect box repopulates —
+  // exactly like `curl` does for the ActiveCollab session.
+  portalCurl: string;
   portalToken: string;
   portalCookie: string;
   portalCapturedAt: number | null;
@@ -123,6 +126,7 @@ const DEFAULTS: SessionFields = {
   cookie: '',
   csrf: '',
   capturedAt: null,
+  portalCurl: '',
   portalToken: '',
   portalCookie: '',
   portalCapturedAt: null,
@@ -142,7 +146,10 @@ export const useSession = create<SessionState>()(
       applyCurl: (curl) => {
         if (isPortalCurl(curl)) {
           const p = parsePortalCurlString(curl);
-          if (p.ok) set({ portalToken: p.portalToken!, portalCookie: p.portalCookie || '', portalCapturedAt: Date.now() });
+          // always remember the raw cURL (like the AC session does with `curl`)
+          const patch: Partial<SessionFields> = { portalCurl: p.curl ?? curl };
+          if (p.ok) { patch.portalToken = p.portalToken!; patch.portalCookie = p.portalCookie || ''; patch.portalCapturedAt = Date.now(); }
+          set(patch);
           return p;
         }
         const p = parseCurlString(curl);
@@ -170,7 +177,7 @@ export const useSession = create<SessionState>()(
         curl: s.curl, base: s.base, projectId: s.projectId, taskListId: s.taskListId,
         userId: s.userId, categoryId: s.categoryId, taskId: s.taskId, source: s.source,
         billable: s.billable, cookie: s.cookie, csrf: s.csrf, capturedAt: s.capturedAt,
-        portalToken: s.portalToken, portalCookie: s.portalCookie, portalCapturedAt: s.portalCapturedAt,
+        portalCurl: s.portalCurl, portalToken: s.portalToken, portalCookie: s.portalCookie, portalCapturedAt: s.portalCapturedAt,
       }),
     }
   )

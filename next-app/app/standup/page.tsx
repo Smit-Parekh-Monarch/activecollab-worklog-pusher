@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Copy, RefreshCw, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useNotify } from '@/components/notify';
 import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/Icon';
 import './standup.css';
 
 // One row per work-log that carries a `standup` block. Excel-friendly:
@@ -114,45 +115,49 @@ export default function Page() {
 
   return (
     <div>
-      <h1 style={{ margin: '0 0 2px', fontSize: 24 }}>Standup</h1>
-      <p style={{ margin: '0 0 14px', color: 'var(--text2)', fontSize: 14 }}>
+      <p className="su-intro">
         One row per work-log that has a <code>standup</code> block. Click any cell to copy it; <b>Copy</b> copies the whole row tab-separated for Excel/Sheets.
       </p>
 
       <div className="su-toolbar">
-        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter rows…" />
-        <Button onClick={copyAll}><Copy className="h-4 w-4" />Copy all rows</Button>
-        <Button variant="outline" onClick={() => copyText(headerTSV(), 'Header row copied')}>Copy header</Button>
-        <Button variant="ghost" onClick={loadAll} disabled={loading}>
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}Reload
+        <div className="su-search">
+          <Icon name="search" />
+          <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter rows…" />
+        </div>
+        <Button className="su-btn-dark" onClick={copyAll}><Icon name="content_copy" size={17} />Copy all rows</Button>
+        <Button variant="outline" onClick={() => copyText(headerTSV(), 'Header row copied')}><Icon name="table_rows" size={17} />Copy header</Button>
+        <Button variant="outline" onClick={loadAll} disabled={loading}>
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon name="refresh" size={17} />}Reload
         </Button>
       </div>
 
       <div className="su-card">
-        <div className="su-tablewrap">
-          <table className="su-table">
-            <thead>
-              <tr>
-                {COLS.map((c) => <th key={c}>{c}</th>)}
-                <th>Date</th>
-                <th></th>
+        <table className="su-table">
+          <thead>
+            <tr>
+              <th className="col-name">Name</th>
+              <th className="col-project">Project</th>
+              <th className="col-prog">In Progress &amp; ETA</th>
+              <th>Completed</th>
+              <th>Next in Queue</th>
+              <th className="col-date">Date</th>
+              <th className="col-act"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((r) => (
+              <tr key={r.rel}>
+                <td className="col-name" title="Click to copy" onClick={() => copyText(r.name, 'Cell copied')}>{r.name || '—'}</td>
+                <td className="col-project" title="Click to copy" onClick={() => copyText(r.project, 'Cell copied')}><span>{r.project || '—'}</span></td>
+                <td title="Click to copy" onClick={() => copyText(r.inProgress.join('\n'), 'Cell copied')}><Bullets lines={r.inProgress} /></td>
+                <td title="Click to copy" onClick={() => copyText(r.completed.join('\n'), 'Cell copied')}><Bullets lines={r.completed} /></td>
+                <td title="Click to copy" onClick={() => copyText(r.next.join('\n'), 'Cell copied')}><Bullets lines={r.next} /></td>
+                <td className="su-date">{r.date || '—'}</td>
+                <td className="col-act"><Button variant="outline" size="sm" title="Copy row (tab-separated)" onClick={(e) => { e.stopPropagation(); copyText(rowTSV(r), 'Row copied (paste into Excel)'); }}><Icon name="content_copy" size={15} />Copy</Button></td>
               </tr>
-            </thead>
-            <tbody>
-              {visible.map((r) => (
-                <tr key={r.rel}>
-                  <td className="col-name" title="Click to copy" onClick={() => copyText(r.name, 'Cell copied')}>{r.name || '—'}</td>
-                  <td className="col-project" title="Click to copy" onClick={() => copyText(r.project, 'Cell copied')}>{r.project || '—'}</td>
-                  <td title="Click to copy" onClick={() => copyText(r.inProgress.join('\n'), 'Cell copied')}><Bullets lines={r.inProgress} /></td>
-                  <td title="Click to copy" onClick={() => copyText(r.completed.join('\n'), 'Cell copied')}><Bullets lines={r.completed} /></td>
-                  <td title="Click to copy" onClick={() => copyText(r.next.join('\n'), 'Cell copied')}><Bullets lines={r.next} /></td>
-                  <td className="su-date">{r.date || '—'}</td>
-                  <td><Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); copyText(rowTSV(r), 'Row copied (paste into Excel)'); }}><Copy className="h-3.5 w-3.5" />Copy</Button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
         {loading
           ? <div className="su-empty"><Loader2 className="inline h-4 w-4 animate-spin" /> Loading standups…</div>
           : empty && <div className="su-empty">{empty}</div>}
@@ -160,7 +165,7 @@ export default function Page() {
 
       {!empty && (
         <div className="su-meta">
-          {visible.length} row{visible.length === 1 ? '' : 's'} · click any cell to copy it · “Copy” copies the whole row tab-separated.
+          <b>{visible.length} row{visible.length === 1 ? '' : 's'}</b> · click any cell to copy it · “Copy” copies the whole row tab-separated.
         </div>
       )}
 

@@ -1,62 +1,77 @@
 /* ============================================================
-   Work-log Pusher — Monarch design system
-   Light workspace · deep-ink sidebar · teal accent (#18B6D9)
+   Pusher — Monarch Innovation design system
+   Warm paper workspace · deep-ink sidebar · terracotta accent (#C4623C)
+   Type: IBM Plex Sans / IBM Plex Mono · icons: Material Symbols
    ============================================================ */
 :root {
-  /* Brand / workspace (from Monarch tokens) */
-  --bg:            #EEF2F7;
-  --bg2:           #F0F4F8;
-  --surface:       #F1F5F9;
-  --surface-hover: #E7EDF3;
+  /* Brand / workspace — warm paper palette */
+  --bg:            #F4F2EE;
+  --bg2:           #EFECE4;
+  --surface:       #FAF9F6;
+  --surface-hover: #F1EFEA;
   --card:          #FFFFFF;
-  --text:          #0D1526;
-  --text2:         #475569;
-  --text3:         #94A3B8;
-  --border:        #E6ECF3;
-  --border-strong: #CBD5E1;
+  --text:          #1C1B18;
+  --text2:         #5A5850;
+  --text3:         #9B978C;
+  --border:        #E7E4DD;
+  --border-strong: #D8D4CB;
 
-  --primary:       #18B6D9;
-  --primary-hover: #17A8CC;
-  --primary-light: #ECFEFF;
-  --primary-dark:  #0E7490;
-  --primary-rgb:   24, 182, 217;
+  --primary:       #C4623C;
+  --primary-hover: #A94F2E;
+  --primary-light: #FBEEE8;
+  --primary-dark:  #B5552F;
+  --primary-rgb:   196, 98, 60;
 
-  --success:       #16A34A;
-  --success-light: #F0FDF4;
-  --success-rgb:   22, 163, 74;
-  --error:         #DC2626;
-  --error-light:   #FEF2F2;
-  --error-rgb:     220, 38, 38;
-  --warning:       #D97706;
-  --warning-light: #FFFBEB;
-  --warning-rgb:   217, 119, 6;
-  --violet:        #7C3AED;
-  --violet-light:  #F5F3FF;
+  --success:       #3F8F5F;
+  --success-light: #EAF3EC;
+  --success-rgb:   63, 143, 95;
+  --error:         #C0483A;
+  --error-light:   #F7ECEC;
+  --error-rgb:     192, 72, 58;
+  --warning:       #B07D2E;
+  --warning-light: #FBF1E4;
+  --warning-rgb:   176, 125, 46;
+  --violet:        #7A5A93;
+  --violet-light:  #F3ECF7;
+  --info:          #3E6C82;
+  --info-light:    #EAF0F3;
+  --info-rgb:      62, 108, 130;
 
   /* Ink sidebar */
-  --ink:           #0B1220;
-  --ink-2:         #111A2B;
+  --ink:           #211F1B;
+  --ink-2:         #2A2823;
   --ink-line:      rgba(255,255,255,.07);
-  --ink-text:      #E8EEF6;
-  --ink-text2:     #93A1B5;
-  --ink-text3:     #5C6B82;
+  --ink-text:      #F3EFE7;
+  --ink-text2:     #A19C90;
+  --ink-text3:     #6E695E;
 
-  --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  --font: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --shadow-xs: 0 1px 2px rgba(13,21,38,.05);
-  --shadow-sm: 0 1px 2px rgba(13,21,38,.04), 0 1px 3px rgba(13,21,38,.06);
-  --shadow-md: 0 4px 14px rgba(13,21,38,.07), 0 2px 5px rgba(13,21,38,.04);
-  --shadow-lg: 0 18px 48px -12px rgba(13,21,38,.22), 0 6px 16px -8px rgba(13,21,38,.12);
-  --shadow-pop: 0 24px 70px -18px rgba(13,21,38,.34);
+  --shadow-xs: 0 1px 2px rgba(28,27,24,.04);
+  --shadow-sm: 0 1px 2px rgba(28,27,24,.04), 0 1px 3px rgba(28,27,24,.05);
+  --shadow-md: 0 4px 14px rgba(28,27,24,.06), 0 2px 5px rgba(28,27,24,.04);
+  --shadow-lg: 0 18px 48px -12px rgba(28,27,24,.18), 0 6px 16px -8px rgba(28,27,24,.10);
+  --shadow-pop: 0 30px 80px -20px rgba(28,27,24,.40);
 
-  --r-sm: 9px;
-  --r:    13px;
-  --r-lg: 18px;
-  --r-xl: 22px;
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
 
-  --sidebar-w: 268px;
+  --sidebar-w: 250px;
   --ease: cubic-bezier(.22,1,.36,1);
+}
+
+/* Material Symbols icon glyph */
+.ms {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal; font-style: normal; line-height: 1;
+  letter-spacing: normal; text-transform: none; white-space: nowrap;
+  display: inline-block; direction: ltr; font-size: inherit;
+  -webkit-font-feature-settings: "liga"; -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  vertical-align: middle; pointer-events: none; user-select: none;
 }
 
 /* density tweak hook */
@@ -188,7 +203,7 @@ button { font-family: inherit; }
 .conn-btn ion-icon { font-size: 14px; }
 
 .sb-user { display: flex; align-items: center; gap: 10px; padding: 12px 8px 4px; margin-top: 8px; border-top: 1px solid var(--ink-line); }
-.sb-ava { width: 32px; height: 32px; border-radius: 9px; flex: none; display: grid; place-items: center; font-size: 12.5px; font-weight: 800; color: #04121a; background: linear-gradient(150deg, #5FD3EE, var(--primary)); }
+.sb-ava { width: 32px; height: 32px; border-radius: 9px; flex: none; display: grid; place-items: center; font-size: 12.5px; font-weight: 800; color: #2A241F; background: linear-gradient(150deg, #E8C9A0, #D9A96F); }
 .sb-user .ut { line-height: 1.25; }
 .sb-user .ut b { font-size: 12.5px; color: var(--ink-text); font-weight: 700; display: block; }
 .sb-user .ut span { font-size: 11px; color: var(--ink-text3); }
@@ -269,7 +284,7 @@ button { font-family: inherit; }
 .btn ion-icon { font-size: 16px; }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 0 rgba(14,116,144,.25), var(--shadow-sm); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 8px -2px rgba(var(--primary-rgb), .5); }
 .btn-primary:hover { background: var(--primary-hover); }
 .btn-ghost { background: #fff; border: 1px solid var(--border-strong); color: var(--text2); }
 .btn-ghost:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
@@ -324,7 +339,7 @@ button { font-family: inherit; }
 .bar-track { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
 .bar {
   width: 60%; max-width: 34px; border-radius: 8px 8px 4px 4px; position: relative;
-  background: linear-gradient(180deg, #5FD3EE, var(--primary));
+  background: linear-gradient(180deg, #E08A63, var(--primary));
   transform-origin: bottom; animation: grow .8s var(--ease) both;
   cursor: pointer; transition: filter .15s;
 }
@@ -410,7 +425,7 @@ table.tasks { width: 100%; border-collapse: collapse; }
 .tasks tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
 .tasks tbody tr:last-child td { border-bottom: 0; }
 .tasks tbody tr { transition: background .12s; }
-.tasks tbody tr:hover { background: #FAFCFE; }
+.tasks tbody tr:hover { background: #FBFAF7; }
 .tasks tbody tr.pushing { background: rgba(var(--primary-rgb), .05); }
 .tasks tbody tr.done-row { background: rgba(var(--success-rgb), .045); }
 .row-in { animation: rowIn .4s var(--ease) both; }
@@ -507,7 +522,7 @@ details.errd pre {
 .figma-table thead th { text-align: left; background: var(--surface); color: var(--text3); font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; font-weight: 800; padding: 12px 16px; border-bottom: 1px solid var(--border); }
 .figma-table tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .figma-table tbody tr:last-child td { border-bottom: 0; }
-.figma-table tbody tr:hover { background: #FAFCFE; }
+.figma-table tbody tr:hover { background: #FBFAF7; }
 .figma-table td.copyable { cursor: copy; transition: background .12s; }
 .figma-table td.copyable:hover { background: var(--primary-light); }
 
@@ -606,7 +621,7 @@ html:has(body.single) { height: auto; }
 .sp-fgroup { font-size: 10px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--text3); background: var(--surface); padding: 8px 14px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1; }
 .sp-file { display: flex; align-items: center; gap: 12px; padding: 11px 14px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background .12s; }
 .sp-file:last-child { border-bottom: 0; }
-.sp-file:hover { background: #FAFCFE; }
+.sp-file:hover { background: #FBFAF7; }
 .sp-file.sel { background: var(--primary-light); box-shadow: inset 3px 0 0 var(--primary); }
 .sp-cal { width: 38px; height: 38px; border-radius: 10px; flex: none; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
 .sp-file.sel .sp-cal { background: #fff; border-color: var(--primary); }

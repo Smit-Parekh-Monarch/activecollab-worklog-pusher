@@ -1,0 +1,34 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [],
+    "next": [
+      "Merge feat/offboarding-meeting-step to dev and deploy to stage so the new endpoints are live"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "2-step resignation — manager meeting request before the form",
+      "date": "2026-06-30",
+      "hours": "03:30",
+      "body": "Built the pre-submit meeting-request gate for offboarding",
+      "summary": "- Added MEETING_REQUESTED/ACCEPTED/DECLINED statuses, columns (migration) and endpoints: request, accept, decline-with-reason, cancel\n- Employee My Offboarding page gates the resignation form behind a manager meeting request (waiting / declined / accepted states)\n- Manager/HR Accept & Decline-with-reason panel; meeting notifications are in-app only with HR fallback\n- Fixed rejected resignation to return the employee to step 1"
+    },
+    {
+      "name": "Professional offboarding email template + letter polish",
+      "date": "2026-06-30",
+      "hours": "02:00",
+      "body": "Reusable branded HTML email for all offboarding notifications",
+      "summary": "- Built one reusable HTML email shell (logo header, clean body card, footer) with the Monarch logo embedded inline (CID)\n- Routed all offboarding emails through it (plain text -> branded HTML) and used 'Monarch Innovation Private Limited' in the signature\n- Sent a live preview to verify rendering; finished the experience/relieving letter formatting and pronoun polish"
+    },
+    {
+      "name": "Offboarding UX — batch sign-off, sidebar, tooling",
+      "date": "2026-06-30",
+      "hours": "02:45",
+      "body": "Stage-7 batch sign-off and sidebar/tooling improvements",
+      "summary": "- No-dues clearance now uses a Save-changes batch sign-off (one combined notification, not one email per department)\n- Expanded the Workspace sidebar section by default\n- Installed the shadcn skill in mipl-frontend-next; merged latest dev into both repos (no conflicts) and verified builds"
+    }
+  ]
+}

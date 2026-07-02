@@ -1,0 +1,58 @@
+/* ============================================================
+   Figma changes — scoped restyle to the redesign mockup.
+   Card shell + header row + rethemed table live here; the table
+   body reuses the shared .figma-table primitive from globals.css.
+   ============================================================ */
+
+.fg-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+
+/* header row inside the card */
+.fg-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #F0EDE6;
+}
+.fg-head-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.fg-head-sub   { font-size: 12.5px; color: var(--text3); margin-top: 2px; }
+.fg-head-actions { margin-left: auto; display: flex; gap: 9px; }
+
+/* violet page tag used for the identity (first) column cell */
+.fg-pagetag {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--violet-light);
+  color: var(--violet);
+  min-width: 130px;
+  text-align: center;
+}
+
+/* small icon-only copy button on each row, matching the mockup's .iconbtn */
+.fg-iconbtn {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.fg-iconbtn:hover { background: var(--surface-hover); color: var(--text2); border-color: var(--border-strong); }
+
+/* the mockup separates rows with a lighter line than the primitive default */
+.fg-card .figma-table tbody td { border-bottom-color: #F5F2EC; }
+.fg-card .figma-table thead th { background: #FAF9F6; }

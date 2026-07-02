@@ -1,9 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Copy, RefreshCw, Loader2 } from 'lucide-react';
+import { Copy, Loader2 } from 'lucide-react';
 import { useNotify } from '@/components/notify';
 import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/Icon';
+import './figma.css';
 
 // One parsed CSV row keyed by header name, plus the raw cells for ordered rendering.
 type Row = Record<string, string>;
@@ -107,26 +109,24 @@ export default function Page() {
 
   return (
     <div className="page view-enter">
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 18 }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-.4px', margin: '0 0 4px' }}>Figma changes</h1>
-          <p className="muted" style={{ fontSize: 13.5, margin: 0 }}>
-            Edits and updates to existing pages — click any cell to copy its value.
-          </p>
+      <section className="fg-card">
+        <div className="fg-head">
+          <div>
+            <div className="fg-head-title">Recent design changes</div>
+            <div className="fg-head-sub">Edits and updates to existing pages · click any cell to copy.</div>
+          </div>
+          <div className="fg-head-actions">
+            <Button type="button" onClick={copyAll} disabled={!rows.length}>
+              <Copy className="h-4 w-4" />
+              Copy all rows
+            </Button>
+            <Button type="button" variant="ghost" onClick={reload} disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon name="refresh" size={16} />}
+              Refresh
+            </Button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 9 }}>
-          <Button type="button" onClick={copyAll} disabled={!rows.length}>
-            <Copy className="h-4 w-4" />
-            Copy all rows
-          </Button>
-          <Button type="button" variant="ghost" onClick={reload} disabled={loading}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            Reload
-          </Button>
-        </div>
-      </div>
 
-      <div className="tablewrap">
         {loading && headers.length === 0 ? (
           <div className="empty">
             <div className="empty-ic"><Loader2 className="h-7 w-7 animate-spin" /></div>
@@ -135,7 +135,7 @@ export default function Page() {
           </div>
         ) : headers.length === 0 ? (
           <div className="empty">
-            <div className="empty-ic"><ion-icon name="document-text-outline" /></div>
+            <div className="empty-ic"><Icon name="description" size={28} /></div>
             <h3>No CSV loaded</h3>
             <p>{error || 'Nothing to show yet.'}</p>
           </div>
@@ -161,19 +161,21 @@ export default function Page() {
                         >
                           {isStatus
                             ? <span className={`pill ${done ? 'ok' : 'warn'}`}>{cell.trim()}</span>
-                            : cell}
+                            : ci === 0 && cell.trim() !== ''
+                              ? <span className="fg-pagetag">{cell}</span>
+                              : cell}
                         </td>
                       );
                     })}
                     <td>
-                      <Button
+                      <button
                         type="button"
-                        variant="outline"
-                        size="sm"
+                        title="Copy row"
+                        className="fg-iconbtn"
                         onClick={(e) => { e.stopPropagation(); copy(rowTSV(row), 'Row copied'); }}
                       >
-                        <Copy className="h-3.5 w-3.5" /> Copy
-                      </Button>
+                        <Icon name="content_copy" size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -181,7 +183,7 @@ export default function Page() {
             </table>
           </div>
         )}
-      </div>
+      </section>
 
       <p className="muted" style={{ fontSize: 12.5, marginTop: 14 }}>
         Auto-loads <code>/figma/figma-changes.csv</code>. If it does not load,{' '}

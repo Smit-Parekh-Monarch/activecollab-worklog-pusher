@@ -4,24 +4,27 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useSession } from '@/lib/store';
 import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/Icon';
 
-const NAV = [
-  { href: '/',          label: 'Dashboard', icon: 'grid-outline' },
-  { href: '/worklogs',  label: 'Work-logs', icon: 'list-outline' },
-  { href: '/overtime',  label: 'Overtime',  icon: 'time-outline' },
-  { href: '/portal-hours', label: 'Portal Hours', icon: 'cloud-download-outline' },
-  { href: '/figma',     label: 'Figma',     icon: 'color-palette-outline' },
-  { href: '/standup',   label: 'Standup',   icon: 'people-outline' },
+const NAV_MAIN = [
+  { href: '/',             label: 'Dashboard',    icon: 'grid_view' },
+  { href: '/worklogs',     label: 'Work-logs',    icon: 'checklist' },
+  { href: '/overtime',     label: 'Overtime',     icon: 'schedule' },
+  { href: '/portal-hours', label: 'Portal Hours', icon: 'cloud_download' },
+];
+const NAV_REF = [
+  { href: '/figma',   label: 'Figma',   icon: 'palette' },
+  { href: '/standup', label: 'Standup', icon: 'groups' },
 ];
 
-function relTime(ms) {
-  if (!ms) return '';
-  const s = Math.round((Date.now() - ms) / 1000);
-  if (s < 60) return 'just now';
-  const m = Math.round(s / 60); if (m < 60) return m + 'm ago';
-  const h = Math.round(m / 60); if (h < 24) return h + 'h ago';
-  return Math.round(h / 24) + 'd ago';
-}
+const PAGES: Record<string, { title: string; desc: string }> = {
+  '/':             { title: 'Dashboard',           desc: 'Push ActiveCollab work-logs and overtime from one place.' },
+  '/worklogs':     { title: 'Work-log Pusher',     desc: 'Turn a day of work into ActiveCollab tasks — in one go.' },
+  '/overtime':     { title: 'Overtime → Expenses', desc: 'Convert a month of overtime into pushable expenses.' },
+  '/portal-hours': { title: 'Portal Hours',        desc: 'Load logged hours from the portal and push overtime.' },
+  '/figma':        { title: 'Figma changes',       desc: 'Edits and updates to existing pages — copy any cell.' },
+  '/standup':      { title: 'Standup',             desc: 'One row per work-log, ready to paste into your standup sheet.' },
+};
 
 export default function Shell({ children }) {
   const pathname = usePathname();
@@ -29,26 +32,32 @@ export default function Shell({ children }) {
   const [connectOpen, setConnectOpen] = useState(false);
   const [draftAc, setDraftAc] = useState('');
   const [draftPortal, setDraftPortal] = useState('');
-  const [msg, setMsg] = useState(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const cookie = useSession((s) => s.cookie);
   const csrf = useSession((s) => s.csrf);
-  const capturedAt = useSession((s) => s.capturedAt);
   const curl = useSession((s) => s.curl);
+  const portalCurl = useSession((s) => s.portalCurl);
   const portalToken = useSession((s) => s.portalToken);
-  const portalCapturedAt = useSession((s) => s.portalCapturedAt);
   const applyCurl = useSession((s) => s.applyCurl);
   const forget = useSession((s) => s.forget);
-
-  const portalOn = mounted && !!portalToken;
 
   // avoid hydration mismatch — store is client-only
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { setDraftAc(curl || ''); }, [curl]);
+  useEffect(() => { setDraftPortal(portalCurl || ''); }, [portalCurl]);
+  // any page can open the Connect modal via window.dispatchEvent(new Event('pusher:connect'))
+  useEffect(() => {
+    const open = () => setConnectOpen(true);
+    window.addEventListener('pusher:connect', open);
+    return () => window.removeEventListener('pusher:connect', open);
+  }, []);
 
   const connected = mounted && !!(cookie && csrf);
+  const portalOn = mounted && !!portalToken;
+  const page = PAGES[pathname] || { title: 'Pusher', desc: '' };
 
-  // capture from one of the two boxes; applyCurl auto-detects AC vs Portal anyway
+  // capture from one of the two boxes; applyCurl auto-detects AC vs Portal
   function capture(text: string) {
     if (!text.trim()) { setMsg({ ok: false, text: 'Paste a cURL first' }); return; }
     const p = applyCurl(text);
@@ -57,82 +66,134 @@ export default function Shell({ children }) {
   }
 
   return (
-    <div className="dash">
-      {/* sidebar */}
-      <aside className="dash-side">
-        <div className="dash-logo">
-          <ion-icon name="cloud-upload-outline" />
-          <span>Pusher</span>
+    <div className="app-shell">
+      {/* ============ SIDEBAR ============ */}
+      <aside className="sb">
+        <div className="sb-brand">
+          <div className="sb-logo"><Icon name="cloud_upload" /></div>
+          <div className="sb-brand-txt">
+            <div className="sb-brand-name">Pusher</div>
+            <div className="sb-brand-org">Monarch Innovation</div>
+          </div>
         </div>
-        <nav className="dash-nav">
-          {NAV.slice(0, 4).map((n) => (
-            <a key={n.href} href={n.href} className={'dash-navitem' + (pathname === n.href ? ' on' : '')}>
-              <ion-icon name={n.icon} />
-              <span>{n.label}</span>
-            </a>
-          ))}
-          <div className="dash-navsep" />
-          {NAV.slice(4).map((n) => (
-            <a key={n.href} href={n.href} className={'dash-navitem' + (pathname === n.href ? ' on' : '')}>
-              <ion-icon name={n.icon} />
-              <span>{n.label}</span>
+
+        <div className="sb-sec">Workspace</div>
+        <nav className="sb-nav">
+          {NAV_MAIN.map((n) => (
+            <a key={n.href} href={n.href} className={'sb-link' + (pathname === n.href ? ' on' : '')}>
+              <Icon name={n.icon} /><span>{n.label}</span>
             </a>
           ))}
         </nav>
-        <div className="dash-side-foot">Monarch Innovation</div>
+
+        <div className="sb-sec gap">Reference</div>
+        <nav className="sb-nav">
+          {NAV_REF.map((n) => (
+            <a key={n.href} href={n.href} className={'sb-link' + (pathname === n.href ? ' on' : '')}>
+              <Icon name={n.icon} /><span>{n.label}</span>
+            </a>
+          ))}
+        </nav>
+
+        <div className="sb-spacer" />
+
+        <button className="sb-conn" onClick={() => setConnectOpen(true)}>
+          <div className="sb-conn-top">
+            <span className={'sb-conn-dot ' + (connected ? 'on' : 'off')} />
+            <span className="sb-conn-title">{connected ? 'Session active' : 'Not connected'}</span>
+          </div>
+          <div className="sb-conn-chips">
+            <span className={'c' + (connected ? ' on' : '')}>ActiveCollab</span>
+            <span className={'c' + (portalOn ? ' on' : '')}>Portal</span>
+          </div>
+        </button>
+
+        <div className="sb-user">
+          <div className="sb-user-ava"><Icon name="person" /></div>
+          <div className="sb-user-txt">
+            <div className="sb-user-name">Monarch</div>
+            <div className="sb-user-role">Local workspace</div>
+          </div>
+        </div>
       </aside>
 
-      {/* main column */}
-      <div className="dash-main">
-        <header className="dash-top">
-          <button className={'dash-conn ' + (connected ? 'on' : 'off')} onClick={() => setConnectOpen((v) => !v)}>
-            <span className="dot" />
-            {connected ? 'Session active' + (capturedAt ? ' · ' + relTime(capturedAt) : '') : 'Not connected'}
-            <ion-icon name="chevron-down-outline" />
-          </button>
-          {portalOn && (
-            <span className="dash-portal" title={'Portal token captured' + (portalCapturedAt ? ' · ' + relTime(portalCapturedAt) : '')}>
-              <ion-icon name="cloud-download-outline" /> Portal
-            </span>
-          )}
-          {(connected || portalOn) && (
-            <button className="dash-forget" onClick={() => { forget(); setDraftAc(''); setDraftPortal(''); setMsg(null); }} title="Forget all sessions">
-              <ion-icon name="log-out-outline" />
+      {/* ============ MAIN ============ */}
+      <div className="app-main">
+        <header className="topbar">
+          <div className="topbar-titles">
+            <h1>{page.title}</h1>
+            <p>{page.desc}</p>
+          </div>
+          <div className="topbar-right">
+            {portalOn && (
+              <span className="topbar-portal"><Icon name="cloud_download" /> Portal</span>
+            )}
+            <button className={'conn-pill ' + (connected ? 'on' : 'off')} onClick={() => setConnectOpen(true)}>
+              <span className="dot" />
+              {connected ? 'Session active' : 'Not connected'}
+              <Icon name="expand_more" />
             </button>
-          )}
+          </div>
         </header>
 
-        {connectOpen && (
-          <div className="dash-connect">
-            <p className="dash-connect-intro">Paste a <b>Copy as cURL</b> for each service. Each is stored once and shared across every tool.</p>
-            <div className="dash-connect-grid">
+        <main className="app-scroll">
+          <div key={pathname} className="page view-enter">{children}</div>
+        </main>
+      </div>
+
+      {/* ============ CONNECT MODAL ============ */}
+      {connectOpen && (
+        <div className="cx-overlay" onClick={(e) => { if (e.target === e.currentTarget) setConnectOpen(false); }}>
+          <div className="cx-modal" role="dialog" aria-modal="true">
+            <div className="cx-head">
+              <div className="cx-head-ic"><Icon name="link" /></div>
+              <div style={{ flex: 1 }}>
+                <h3>Connections</h3>
+                <p>Paste a request from your browser once — it&apos;s shared across every tool.</p>
+              </div>
+              <button className="cx-close" onClick={() => setConnectOpen(false)}><Icon name="close" /></button>
+            </div>
+            <div className="cx-body">
               {/* ActiveCollab */}
-              <div className="dash-connect-col">
-                <label>ActiveCollab <span className={'chip ' + (connected ? 'on' : 'off')}>{connected ? 'active ✓' : 'needed'}</span>
-                  <span className="hint">tasks or expenses request — cookie + CSRF. For work-logs &amp; overtime push.</span>
-                </label>
-                <textarea rows={4} value={draftAc} spellCheck={false}
+              <div className="cx-sec">
+                <div className="cx-sec-head">
+                  <span className="t">ActiveCollab session</span>
+                  <span className={'cx-chip ' + (connected ? 'on' : 'off')}>{connected ? 'connected ✓' : 'not connected'}</span>
+                  <span className="aside">for work-logs &amp; overtime</span>
+                </div>
+                <p className="hint">In ActiveCollab DevTools → Network, right-click a request → <b>Copy as cURL</b>, then paste below.</p>
+                <textarea spellCheck={false} value={draftAc}
                   onChange={(e) => setDraftAc(e.target.value)}
-                  placeholder="curl 'http://…/projects/6070/tasks' -H 'X-Angie-CsrfValidator: …' -b '…'" />
-                <Button size="sm" onClick={() => capture(draftAc)}><ion-icon name="flash-outline" />Capture ActiveCollab</Button>
+                  placeholder="curl 'https://…/projects/6070/tasks' -H 'X-Angie-CsrfValidator: …' -b '…'" />
+                <div style={{ marginTop: 10 }}>
+                  <Button size="sm" onClick={() => capture(draftAc)}><Icon name="bolt" />Capture ActiveCollab</Button>
+                </div>
               </div>
               {/* Portal */}
-              <div className="dash-connect-col">
-                <label>Portal hours <span className={'chip ' + (portalOn ? 'on' : 'off')}>{portalOn ? 'captured ✓' : 'needed'}</span>
-                  <span className="hint"><code>my-project-hours</code> request — Bearer token. For the Portal Hours page.</span>
-                </label>
-                <textarea rows={4} value={draftPortal} spellCheck={false}
+              <div className="cx-sec">
+                <div className="cx-sec-head">
+                  <span className="t">Portal token</span>
+                  <span className={'cx-chip ' + (portalOn ? 'on' : 'off')}>{portalOn ? 'captured ✓' : 'optional'}</span>
+                  <span className="aside">for the Portal Hours page</span>
+                </div>
+                <p className="hint">Copy the <code>my-project-hours</code> request as cURL from the portal.</p>
+                <textarea spellCheck={false} value={draftPortal}
                   onChange={(e) => setDraftPortal(e.target.value)}
-                  placeholder="curl '…/api/activecollab/my-project-hours?startDate=…' -H 'authorization: Bearer …' -b 'monarch_auth=…'" />
-                <Button size="sm" onClick={() => capture(draftPortal)}><ion-icon name="cloud-download-outline" />Capture Portal</Button>
+                  placeholder="curl '…/api/activecollab/my-project-hours?startDate=…' -H 'authorization: Bearer …'" />
+                <div style={{ marginTop: 10 }}>
+                  <Button size="sm" variant="outline" onClick={() => capture(draftPortal)}><Icon name="cloud_download" />Capture Portal</Button>
+                </div>
               </div>
+              {msg && <span className={'cx-msg ' + (msg.ok ? 'ok' : 'err')}>{msg.text}</span>}
+              {(connected || portalOn) && (
+                <button className="cx-forget" onClick={() => { forget(); setDraftAc(''); setDraftPortal(''); setMsg(null); }}>
+                  Forget all sessions
+                </button>
+              )}
             </div>
-            {msg && <span className={'dash-msg ' + (msg.ok ? 'ok' : 'err')}>{msg.text}</span>}
           </div>
-        )}
-
-        <main className="dash-body">{children}</main>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

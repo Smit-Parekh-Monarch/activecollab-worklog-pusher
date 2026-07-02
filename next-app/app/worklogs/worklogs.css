@@ -1,0 +1,47 @@
+/* ===== Work-log Pusher — page-scoped styles (redesign) ===== */
+
+/* Material Symbols size inside pills / chips / small controls.
+   .ms uses font-size:inherit globally, so we size it in context here. */
+.pill .ms { font-size: 13px; }
+.totchip .ms { font-size: 15px; }
+.sp-flow .ms { font-size: 14px; color: var(--primary-dark); }
+.sp-flow .ms.ar { color: var(--text3); }
+.sp-file .ms.sp-go { font-size: 17px; }
+.rowacts .ms { font-size: 16px; }
+
+/* ---- 3-step stepper ---- */
+.wl-stepper { display: flex; align-items: center; margin: 8px 0 26px; }
+.wl-step { display: flex; align-items: center; gap: 10px; }
+.wl-step-dot {
+  width: 28px; height: 28px; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 700;
+  background: var(--surface); color: var(--text3);
+}
+.wl-step-dot .ms { font-size: 17px; }
+.wl-step.done .wl-step-dot { background: var(--success); color: #fff; }
+.wl-step.active .wl-step-dot {
+  background: var(--primary); color: #fff;
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), .16);
+}
+.wl-step-label { font-size: 13.5px; font-weight: 500; color: var(--text3); }
+.wl-step.done .wl-step-label { font-weight: 600; color: var(--text2); }
+.wl-step.active .wl-step-label { font-weight: 700; color: var(--text); }
+.wl-step-line {
+  flex: 1; height: 2px; min-width: 24px; margin: 0 14px;
+  border-radius: 2px; background: var(--border);
+}
+.wl-step-line.done { background: var(--success); }
+
+@media (max-width: 560px) {
+  .wl-step-label { display: none; }
+  .wl-step-line { margin: 0 8px; }
+}
+
+/* picker two-column collapses on narrow screens */
+@media (max-width: 820px) {
+  .wl-picker-cols { grid-template-columns: 1fr !important; }
+}
+
+/* keep the day list from getting too tall in the two-col layout */
+.wl-picker-cols .sp-files { align-self: stretch; }

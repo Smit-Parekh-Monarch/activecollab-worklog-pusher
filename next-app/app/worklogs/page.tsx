@@ -1,8 +1,10 @@
 'use client';
+import './worklogs.css';
 import { useState, useEffect, useRef } from 'react';
 import { Eye, Code2, Clipboard, Sparkles, Plus, Check, Rocket, Loader2 } from 'lucide-react';
 import { useSession } from '@/lib/store';
 import { useNotify } from '@/components/notify';
+import { Icon } from '@/components/Icon';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -310,10 +312,10 @@ export default function Page() {
     return 'wait';
   };
   const pmeta = {
-    ok:   {l:'done',    i:'checkmark-circle'},
-    err:  {l:'error',   i:'close-circle'},
-    run:  {l:'working', i:'sync-outline'},
-    wait: {l:'waiting', i:'ellipse-outline'},
+    ok:   {l:'done',    i:'check_circle'},
+    err:  {l:'error',   i:'cancel'},
+    run:  {l:'working', i:'sync'},
+    wait: {l:'waiting', i:'circle'},
   };
 
   // group worklogs by month/week
@@ -324,51 +326,44 @@ export default function Page() {
     (groups[g]=groups[g]||[]).push(w);
   });
 
+  const hasReview = showReview && tasks.length > 0;
+  const stepPicked  = hasReview;
+  const stepReview  = hasReview && !allDone;
+  const stepPushed  = hasReview && allDone;
+
   return (
     <div className="sp-wrap">
       <p className="sp-lede">Turn the work-log JSON into ActiveCollab entries in one go. For each task it <b>creates the task</b>, <b>logs the hours</b>, then <b>marks it complete</b>.</p>
 
-      <div className="sp-flow">
-        <ion-icon name="link-outline"></ion-icon>
-        <span>Connect <b>session</b></span>
-        <ion-icon name="chevron-forward-outline" className="ar"></ion-icon>
-        <span>Pick / paste <b>JSON</b></span>
-        <ion-icon name="chevron-forward-outline" className="ar"></ion-icon>
-        <span>Review</span>
-        <ion-icon name="chevron-forward-outline" className="ar"></ion-icon>
-        <span><b>Push</b></span>
-      </div>
-
-      {/* compact settings row — reads/writes the shared session store */}
-      <div className="field-grid" style={{marginBottom:16}}>
-        <div>
-          <label className="fld">Project</label>
-          <Select value={PROJECTS.some(p=>p.id===taskListId) ? taskListId : undefined}
-            onValueChange={(v)=>{ if(v) setField('taskListId', v); }}>
-            <SelectTrigger className="font-mono"><SelectValue placeholder={`Custom (#${taskListId||'—'})`} /></SelectTrigger>
-            <SelectContent>
-              {PROJECTS.map(p => <SelectItem key={p.id} value={p.id}>{p.label} — #{p.id}</SelectItem>)}
-            </SelectContent>
-          </Select>
+      {/* 3-step stepper */}
+      <div className="wl-stepper">
+        <div className={'wl-step'+(stepPicked?' done':(!hasReview?' active':''))}>
+          <span className="wl-step-dot">{stepPicked ? <Icon name="check" /> : '1'}</span>
+          <span className="wl-step-label">Pick a day</span>
         </div>
-        <div><label className="fld">Task list ID</label><input className="inp mono-inp" value={taskListId} onChange={e=>setField('taskListId', e.target.value)} /></div>
-        <div><label className="fld">Base URL</label><input className="inp mono-inp" value={base} onChange={e=>setField('base', e.target.value)} /></div>
-        <div><label className="fld">Your user ID</label><input className="inp mono-inp" value={userId} onChange={e=>setField('userId', e.target.value)} /></div>
-        <div><label className="fld">Project ID</label><input className="inp mono-inp" value={projectId} onChange={e=>setField('projectId', e.target.value)} /></div>
+        <div className={'wl-step-line'+(stepPicked?' done':'')}></div>
+        <div className={'wl-step'+(stepReview?' active':stepPushed?' done':'')}>
+          <span className="wl-step-dot">{stepPushed ? <Icon name="check" /> : '2'}</span>
+          <span className="wl-step-label">Review</span>
+        </div>
+        <div className={'wl-step-line'+(stepPushed?' done':'')}></div>
+        <div className={'wl-step'+(stepPushed?' active':'')}>
+          <span className="wl-step-dot">3</span>
+          <span className="wl-step-label">Push</span>
+        </div>
       </div>
 
-      {/* steps */}
-      <div className="sp-grid">
+      {/* STEP 1 — Choose work-log */}
+      <section className="card card-pad">
+        <div className="sp-cardhead"><span className="sp-no">1</span><h2>Choose the work-log</h2></div>
+        <p className="sp-sub">Pick a saved file, or paste an array of <code>{'{ name, date, hours }'}</code>.</p>
 
-        {/* STEP 1 — Choose work-log */}
-        <section className="card card-pad">
-          <div className="sp-cardhead"><span className="sp-no">1</span><h2>Choose the work-log</h2></div>
-          <p className="sp-sub">Pick a saved file, or paste an array of <code>{'{ name, date, hours }'}</code>.</p>
-
-          <div className="sp-files">
+        <div className="wl-picker-cols" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,alignItems:'start'}}>
+          {/* left: saved day list — capped height so a full month scrolls internally */}
+          <div className="sp-files" style={{margin:0,maxHeight:520,overflowY:'auto'}}>
             {Object.keys(groups).length === 0 && (
               <div style={{padding:'28px 16px',textAlign:'center',color:'var(--text3)',fontSize:12.5}}>
-                <ion-icon name="folder-open-outline" style={{fontSize:28,display:'block',margin:'0 auto 8px',color:'var(--border-strong)'}}></ion-icon>
+                <Icon name="folder_open" style={{fontSize:28,display:'block',margin:'0 auto 8px',color:'var(--border-strong)'}} />
                 No work-logs yet. Run <code style={{fontFamily:'var(--mono)',color:'var(--primary-dark)',background:'var(--primary-light)',padding:'1px 5px',borderRadius:5}}>/update-stats</code> to create one.
               </div>
             )}
@@ -395,7 +390,7 @@ export default function Page() {
                       </div>
                       {w.pushed
                         ? <span className="pill ok" style={{fontSize:11,padding:'3px 9px',flexShrink:0}}>
-                            <ion-icon name="checkmark-circle"></ion-icon>pushed
+                            <Icon name="check_circle" />pushed
                           </span>
                         : <Button
                             variant="outline" size="sm" className="shrink-0"
@@ -414,7 +409,7 @@ export default function Page() {
                           >
                             <Check className="h-3.5 w-3.5" />Mark done
                           </Button>}
-                      <ion-icon name="chevron-forward-outline" className="sp-go"></ion-icon>
+                      <Icon name="chevron_right" className="sp-go" />
                     </div>
                   );
                 })}
@@ -422,7 +417,9 @@ export default function Page() {
             ))}
           </div>
 
-          <label className="fld" style={{marginTop:4}}>Or paste work-log JSON
+          {/* right: paste JSON + actions */}
+          <div>
+          <label className="fld" style={{marginTop:0}}>Or paste work-log JSON
             <Button variant="link" size="sm" style={{float:'right',marginTop:-2}}
               onClick={()=>{setJsonText(JSON.stringify([{name:'Custom CRM Page — Setup, Hero & Overview',date:todayISO(),hours:'03:30',body:'Setup, Hero & Overview',summary:'- Scaffolded the page route\n- Built the Hero and Overview sections from Figma'}],null,2)); toast('Sample loaded','ok');}}>
               <Sparkles className="h-3.5 w-3.5" />Sample
@@ -447,8 +444,36 @@ export default function Page() {
               <Clipboard className="h-4 w-4" />Copy prompt
             </Button>
           </div>
-        </section>
-      </div>
+
+          {/* Advanced settings — reads/writes the shared session store */}
+          <div style={{marginTop:16,paddingTop:14,borderTop:'1px solid var(--border)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+              <Icon name="tune" style={{fontSize:18,color:'var(--text3)'}} />
+              <span style={{fontSize:12.5,fontWeight:700,color:'var(--text2)'}}>Advanced settings</span>
+              <span style={{marginLeft:'auto',fontSize:11,fontFamily:'var(--mono)',color:'var(--text3)'}}>
+                {(PROJECTS.find(p=>p.id===taskListId)?.label || 'Custom')} · #{taskListId||'—'}
+              </span>
+            </div>
+            <div className="field-grid">
+              <div style={{gridColumn:'1 / -1'}}>
+                <label className="fld">Project (task list)</label>
+                <Select value={PROJECTS.some(p=>p.id===taskListId) ? taskListId : undefined}
+                  onValueChange={(v)=>{ if(v) setField('taskListId', v); }}>
+                  <SelectTrigger className="font-mono"><SelectValue placeholder={`Custom (#${taskListId||'—'})`} /></SelectTrigger>
+                  <SelectContent>
+                    {PROJECTS.map(p => <SelectItem key={p.id} value={p.id}>{p.label} — #{p.id}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><label className="fld">Task list ID</label><input className="inp mono-inp" value={taskListId} onChange={e=>setField('taskListId', e.target.value)} /></div>
+              <div><label className="fld">Base URL</label><input className="inp mono-inp" value={base} onChange={e=>setField('base', e.target.value)} /></div>
+              <div><label className="fld">Your user ID</label><input className="inp mono-inp" value={userId} onChange={e=>setField('userId', e.target.value)} /></div>
+              <div><label className="fld">Project ID</label><input className="inp mono-inp" value={projectId} onChange={e=>setField('projectId', e.target.value)} /></div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </section>
 
       {/* STEP 2 — Review & push */}
       {showReview && tasks.length ? (
@@ -459,14 +484,14 @@ export default function Page() {
               {selectedRel && saveState !== 'idle' ? (
                 <span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:12,fontWeight:700,
                   color: saveState==='error' ? 'var(--error)' : saveState==='saved' ? 'var(--ok,#16a34a)' : 'var(--text3)'}}>
-                  {saveState==='saving'   ? <><ion-icon name="sync-outline" className="spin"></ion-icon>Saving…</> : null}
-                  {saveState==='saved'    ? <>Saved ✓</> : null}
+                  {saveState==='saving'   ? <><Icon name="sync" className="spin" style={{fontSize:15}} />Saving…</> : null}
+                  {saveState==='saved'    ? <><Icon name="cloud_done" style={{fontSize:15}} />Saved</> : null}
                   {saveState==='error'    ? <>Save failed</> : null}
                 </span>
               ) : null}
               <span className="totchip"><b className="tnum">{tasks.length}</b> task{tasks.length===1?'':'s'}</span>
               <span className="totchip">
-                <ion-icon name="time-outline" style={{color:'var(--primary-dark)'}}></ion-icon>
+                <Icon name="schedule" style={{color:'var(--primary-dark)'}} />
                 <b className="tnum">{fmtTotal(totalHours)}</b>
                 <span style={{color:'var(--text3)',fontWeight:600,fontSize:11.5}}>({totalHours.toFixed(2)}h)</span>
               </span>
@@ -515,7 +540,7 @@ export default function Page() {
                       </td>
                       <td className="col-status">
                         <span className={'pill '+ov}>
-                          <ion-icon name={pmeta[ov].i} className={ov==='run'?'spin':''}></ion-icon>
+                          <Icon name={pmeta[ov].i} className={ov==='run'?'spin':''} />
                           {pmeta[ov].l}
                         </span>
                         <div className="steps3">
@@ -537,7 +562,7 @@ export default function Page() {
                           </Button>
                           <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" title="Remove" disabled={pushing}
                             onClick={()=>removeRow(i)}>
-                            <ion-icon name="trash-outline"></ion-icon>
+                            <Icon name="delete" />
                           </Button>
                         </div>
                       </td>
@@ -550,11 +575,11 @@ export default function Page() {
 
           <div className="sp-pushbar">
             {!connected
-              ? <span className="pill err"><ion-icon name="alert-circle"></ion-icon>No active session</span>
+              ? <span className="pill err"><Icon name="error" />No active session</span>
               : allDone
-              ? <span className="pill ok"><ion-icon name="checkmark-circle"></ion-icon>All tasks pushed</span>
+              ? <span className="pill ok"><Icon name="check_circle" />All tasks pushed</span>
               : <span className="totchip">
-                  <ion-icon name="information-circle-outline" style={{color:'var(--primary-dark)'}}></ion-icon>
+                  <Icon name="info" style={{color:'var(--primary-dark)'}} />
                   Ready to push <b className="tnum">{tasks.length}</b> tasks
                 </span>}
             <div style={{flex:1}}>
@@ -564,7 +589,7 @@ export default function Page() {
             </div>
             {pushing ? (
               <Button variant="outline" onClick={cancelPush}>
-                <ion-icon name="stop-circle-outline"></ion-icon>Stop
+                <Icon name="stop_circle" />Stop
               </Button>
             ) : null}
             <Button size="lg" disabled={pushing||allDone}

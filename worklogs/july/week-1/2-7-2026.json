@@ -1,0 +1,35 @@
+{
+  "pushed": true,
+  "standup": {
+    "name": "Smit Parekh",
+    "project": "MIPL Portal",
+    "inProgress": [],
+    "next": [
+      "Live click-through verification of the notification panel (admin + employee roles)",
+      "Backend scheduler fix for duplicate meal/workflow notification emits"
+    ]
+  },
+  "tasks": [
+    {
+      "name": "Notification panel redesign",
+      "date": "2026-07-02",
+      "hours": "03:47",
+      "body": "Grouped duplicate notifications into a soft-card panel with date sections and expandable history.",
+      "summary": "- Group duplicate notifications by title+message+day+referenceId with an xN count badge\n- Added Today/Yesterday/Earlier sections and soft-card styling with an unread accent bar\n- Made grouped cards expandable, showing each occurrence's exact date+time and read state\n- Built an interactive HTML prototype (3 style variants) for design sign-off"
+    },
+    {
+      "name": "Offboarding notification routing fix",
+      "date": "2026-07-02",
+      "hours": "03:02",
+      "body": "Fixed offboarding notifications linking to a non-existent route and mapped all offboarding types.",
+      "summary": "- Replaced non-existent /offboarding/exit/:id (404) with /exit-process?exitId=:id\n- Mapped all offboarding notification types (manager decision, exit revert, F&F, experience/relieving letters, meeting, exit completed) that had no link\n- Verified backend needs no change: notify() stores only referenceId and builds no URL\n- Removed the dead resolveHref/myExit code path"
+    },
+    {
+      "name": "Requests hub error surfacing & responsive fix",
+      "date": "2026-07-02",
+      "hours": "01:31",
+      "body": "Surfaced backend error messages in the requests hub and made it responsive.",
+      "summary": "- Surface backend error messages to the user instead of generic failures\n- Made the requests hub layout responsive\n- Corrected apiErrorMessage comment formatting"
+    }
+  ]
+}

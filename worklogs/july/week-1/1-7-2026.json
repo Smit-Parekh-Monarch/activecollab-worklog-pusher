@@ -1,0 +1,19 @@
+{
+  "pushed": true,
+  "tasks": [
+    {
+      "name": "Employee people-picker 403 fix (lightweight /api/users/search)",
+      "date": "2026-07-01",
+      "hours": "05:00",
+      "body": "Fixed employee-side 403 on the shared PersonPicker by adding a dedicated authenticated user-search endpoint and repointing the frontend to it.",
+      "summary": "- Root-caused 403: PersonPicker (recognition/feedback/performance) called admin-only GET /api/users\n- Added GET /api/users/search (isAuthenticated) returning only UserDropdownItem (id/name/email/employeeId), no directory PII\n- Backend: searchActiveForDropdown repo query + searchUsersForDropdown service (limit capped 50) + controller endpoint\n- Frontend: new searchUsersForPicker RTK query + PickerUser type; repointed PersonPicker\n- Added 300ms search debouncing and skip-when-closed to the picker\n- Verified backend compile + frontend typecheck clean"
+    },
+    {
+      "name": "Branch cleanup & PR delivery for picker fix",
+      "date": "2026-07-01",
+      "hours": "03:00",
+      "body": "Recovered an accidental auto-commit off dev, put the change on a clean feature branch in both repos, and merged the PRs.",
+      "summary": "- Moved accidental auto-commit off local dev (reset dev to origin/dev; commit preserved on branch)\n- Created fix/person-picker-employee-access in both repos from latest origin/dev\n- Rebased backend branch onto origin/dev and fast-forwarded local dev\n- Verified origin/dev stayed clean (no PII/change leak) in both repos\n- Pushed branches; merged PRs frontend #189 and backend #396 to dev, stage, prod"
+    }
+  ]
+}

@@ -3,14 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '@/lib/store';
 import { computeMonthlyOvertime, groupByMonth, isoDateFromFile, decimalToHHMM } from '@/lib/overtime-core';
+import { Icon } from '@/components/Icon';
 
 const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WDAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-function fmtDate(iso) {
-  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return '—';
-  const d = +iso.slice(8, 10), m = +iso.slice(5, 7);
-  return d + ' ' + MONS[m - 1];
+function parts(iso) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return null;
+  const d = new Date(iso.slice(0, 10) + 'T00:00:00');
+  return { d: +iso.slice(8, 10), m: +iso.slice(5, 7), y: +iso.slice(0, 4), wd: WDAY[d.getDay()] };
 }
+function fullDate(iso) {
+  const p = parts(iso);
+  return p ? `${p.wd}, ${p.d} ${MONS[p.m - 1]} ${p.y}` : '—';
+}
+
+function openConnect() { window.dispatchEvent(new Event('pusher:connect')); }
 
 export default function Page() {
   const [files, setFiles] = useState([]);
@@ -56,64 +64,110 @@ export default function Page() {
 
   return (
     <div>
-      <h1 style={{ margin: '0 0 2px', fontSize: 24 }}>Dashboard</h1>
-      <p style={{ margin: '0 0 20px', color: 'var(--text2)', fontSize: 14 }}>
-        Push ActiveCollab work-logs and overtime from one place.
-        {!connected && <> Paste a cURL via <b>Not connected</b> in the top bar to begin.</>}
-      </p>
-
-      <div className="ov-grid">
-        <div className="ov-card">
-          <div className="k"><ion-icon name="documents-outline" />Work-logs</div>
-          <div className="v">{files.length}</div>
-          <div className="s">{pushedCount} pushed · {totalHours.toFixed(1)}h total</div>
-        </div>
-        <div className="ov-card">
-          <div className="k"><ion-icon name="time-outline" />Overtime · {monthLabel}</div>
-          <div className="v">{decimalToHHMM(otPush)}</div>
-          <div className="s">{otDays} day{otDays === 1 ? '' : 's'} ready to push{otPushedAlready > 0 ? ` · ${decimalToHHMM(otPushedAlready)} pushed` : ''}</div>
-        </div>
-        <div className="ov-card">
-          <div className="k"><ion-icon name="pulse-outline" />Session</div>
-          <div className="v" style={{ fontSize: 20, color: connected ? 'var(--success)' : 'var(--text3)' }}>
-            {mounted ? (connected ? 'Active' : 'Not connected') : '…'}
+      {mounted && !connected && (
+        <div className="dh-banner">
+          <div className="dh-banner-ic"><Icon name="link" /></div>
+          <div className="dh-banner-txt">
+            <div className="t">Connect to start pushing</div>
+            <div className="d">You can browse work-logs freely — connect an ActiveCollab session when you&apos;re ready to push.</div>
           </div>
-          <div className="s">{connected ? 'cookie + CSRF captured' : 'paste a cURL to connect'}</div>
+          <button className="btn btn-primary" onClick={openConnect}><Icon name="link" />Connect now</button>
+        </div>
+      )}
+
+      {/* stat cards */}
+      <div className="dh-stats">
+        <div className="dh-stat">
+          <div className="dh-stat-top">
+            <div className="dh-stat-ic" style={{ background: 'var(--primary-light)', color: 'var(--primary-dark)' }}><Icon name="description" /></div>
+            <span className="dh-stat-tag" style={{ background: 'var(--primary-light)', color: 'var(--primary-dark)' }}>{pushedCount} pushed</span>
+          </div>
+          <div className="dh-stat-val">{files.length}</div>
+          <div className="dh-stat-lbl">Work-logs found</div>
+        </div>
+
+        <div className="dh-stat">
+          <div className="dh-stat-top">
+            <div className="dh-stat-ic" style={{ background: 'var(--info-light)', color: 'var(--info)' }}><Icon name="schedule" /></div>
+            <span className="dh-stat-tag" style={{ background: 'var(--info-light)', color: 'var(--info)' }}>{otDays} day{otDays === 1 ? '' : 's'}</span>
+          </div>
+          <div className="dh-stat-val">{decimalToHHMM(otPush)}</div>
+          <div className="dh-stat-lbl">Overtime · {monthLabel}</div>
+        </div>
+
+        <div className="dh-stat">
+          <div className="dh-stat-top">
+            <div className="dh-stat-ic" style={{ background: 'var(--surface-hover)', color: 'var(--text2)' }}><Icon name="hourglass_empty" /></div>
+            <span className="dh-stat-tag" style={{ background: 'var(--surface-hover)', color: 'var(--text3)' }}>total</span>
+          </div>
+          <div className="dh-stat-val">{totalHours.toFixed(0)}h</div>
+          <div className="dh-stat-lbl">Hours logged</div>
+        </div>
+
+        <div className="dh-stat">
+          <div className="dh-stat-top">
+            <div className="dh-stat-ic" style={connected
+              ? { background: 'var(--success-light)', color: 'var(--success)' }
+              : { background: 'var(--surface-hover)', color: 'var(--text3)' }}>
+              <Icon name={connected ? 'monitoring' : 'sensors_off'} />
+            </div>
+            <span className="dh-stat-tag" style={connected
+              ? { background: 'var(--success-light)', color: 'var(--success)' }
+              : { background: 'var(--primary-light)', color: 'var(--primary-dark)' }}>{connected ? 'live' : 'connect'}</span>
+          </div>
+          <div className="dh-stat-val" style={{ fontSize: 22, color: connected ? 'var(--success)' : 'var(--text3)' }}>
+            {mounted ? (connected ? 'Active' : 'Off') : '…'}
+          </div>
+          <div className="dh-stat-lbl">{connected ? 'Session connected' : 'No session'}</div>
         </div>
       </div>
 
-      <div className="ov-h">Tools</div>
-      <div className="ov-tools" style={{ marginBottom: 26 }}>
-        <a className="ov-tool" href="/worklogs">
-          <div className="ic"><ion-icon name="list-outline" /></div>
-          <div>
-            <h3>Work-log Pusher</h3>
-            <p>Pick a work-log JSON, review the tasks, then create → log hours → complete each in ActiveCollab.</p>
+      {/* jump back in */}
+      <div className="dh-sech">Jump back in</div>
+      <div className="dh-tools">
+        <a className="dh-tool" href="/worklogs">
+          <div className="dh-tool-ic" style={{ background: 'var(--primary-light)', color: 'var(--primary-dark)' }}><Icon name="rocket_launch" /></div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="dh-tool-h"><h3>Push work-logs</h3><Icon name="arrow_forward" /></div>
+            <p>Pick a day, review the tasks, then create → log hours → complete each in ActiveCollab.</p>
           </div>
         </a>
-        <a className="ov-tool" href="/overtime">
-          <div className="ic"><ion-icon name="time-outline" /></div>
-          <div>
-            <h3>Overtime → Expenses</h3>
-            <p>Convert a month of overtime (weekends count fully) into ActiveCollab expenses, with auto-filled task.</p>
+        <a className="dh-tool" href="/overtime">
+          <div className="dh-tool-ic" style={{ background: 'var(--info-light)', color: 'var(--info)' }}><Icon name="schedule" /></div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="dh-tool-h"><h3>Overtime → Expenses</h3><Icon name="arrow_forward" /></div>
+            <p>Convert a month of overtime (weekends count fully) into ActiveCollab expenses.</p>
           </div>
         </a>
       </div>
 
-      <div className="ov-h">Recent work-logs</div>
-      <div className="ov-tools">
-        {recent.length === 0 && <p style={{ color: 'var(--text3)', fontSize: 13 }}>No work-logs found yet.</p>}
-        {recent.map((f) => (
-          <a key={f.rel} className="ov-tool" href="/worklogs">
-            <div className="ic" style={{ background: f.pushed ? 'var(--success-light)' : 'var(--primary-light)', color: f.pushed ? 'var(--success)' : 'var(--primary-dark)' }}>
-              <ion-icon name={f.pushed ? 'checkmark-done-outline' : 'document-text-outline'} />
-            </div>
-            <div>
-              <h3 style={{ fontSize: 14 }}>{fmtDate(f.date)}</h3>
-              <p>{f.count} task{f.count === 1 ? '' : 's'} · {(Number(f.hours) || 0).toFixed(2)}h{f.pushed ? ' · pushed' : ''}</p>
-            </div>
-          </a>
-        ))}
+      {/* recent */}
+      <div className="dh-sech-row">
+        <div className="dh-sech">Recent work-logs</div>
+        <a href="/worklogs">View all →</a>
+      </div>
+      <div className="dh-recent">
+        {recent.length === 0 && <div className="dh-empty">No work-logs found yet.</div>}
+        {recent.map((f) => {
+          const p = parts(f.date);
+          return (
+            <a key={f.rel} className="dh-recent-row" href="/worklogs">
+              <div className="dh-cal">
+                <span className="mon">{p ? MONS[p.m - 1].toUpperCase() : '—'}</span>
+                <span className="day">{p ? p.d : '·'}</span>
+              </div>
+              <div className="dh-recent-main">
+                <div className="t">{fullDate(f.date)}</div>
+                <div className="m">{f.count} task{f.count === 1 ? '' : 's'} · {(Number(f.hours) || 0).toFixed(2)}h</div>
+              </div>
+              <span className="dh-badge" style={f.pushed
+                ? { background: 'var(--success-light)', color: 'var(--success)' }
+                : { background: 'var(--primary-light)', color: 'var(--primary-dark)' }}>
+                {f.pushed ? 'pushed' : 'ready'}
+              </span>
+            </a>
+          );
+        })}
       </div>
     </div>
   );

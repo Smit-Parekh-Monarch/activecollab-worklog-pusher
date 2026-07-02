@@ -1,139 +1,190 @@
-  /* This page lives inside the app's light theme (see styles.css :root vars). */
-  .ot { max-width: 920px; margin: 0 auto; padding: 24px;
+  /* Overtime → Expenses — restyled to the warm terracotta rebrand. */
+  .ot { max-width: 1040px; margin: 0 auto; padding: 24px;
     background: var(--bg); color: var(--text); }
   .ot h1 { margin: 0 0 4px; }
-  .ot .sub { color: var(--text2); margin: 0 0 20px; max-width: 60ch; }
-  .ot .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+  .ot .sub { color: var(--text2); margin: 0 0 20px; max-width: 62ch; }
+  .ot .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg);
+    padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow-xs); }
   .ot label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-  .ot textarea, .ot input, .ot select { width: 100%; box-sizing: border-box; padding: 8px;
-    background: #fff; color: var(--text); border: 1px solid var(--border-strong); border-radius: 6px; font: inherit; }
+  .ot textarea, .ot input:not(.ms), .ot select { width: 100%; box-sizing: border-box; padding: 8px;
+    background: #fff; color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; font: inherit; }
   .ot textarea:focus, .ot input:focus, .ot select:focus { outline: none; border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .15); }
   .ot .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
 
-  /* Collapsible connection panel — keeps the noisy setup out of the way once captured. */
-  .ot details.conn { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+  /* Collapsible expense-settings panel */
+  .ot details.conn { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg);
+    margin-bottom: 16px; box-shadow: var(--shadow-xs); }
   .ot details.conn > summary { list-style: none; cursor: pointer; padding: 14px 16px;
-    display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--text); }
+    display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--text); }
   .ot details.conn > summary::-webkit-details-marker { display: none; }
   .ot details.conn > summary::before { content: '▸'; color: var(--text3); transition: transform .15s; font-weight: 400; }
   .ot details.conn[open] > summary::before { transform: rotate(90deg); }
-  .ot details.conn > summary .chip { font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; }
+  .ot details.conn > summary .chip { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
   .ot details.conn > summary .chip.ok { background: var(--success-light); color: var(--success); }
   .ot details.conn > summary .chip.err { background: var(--error-light); color: var(--error); }
   .ot details.conn > summary .chip.idle { background: var(--surface-hover); color: var(--text3); }
   .ot details.conn .body { padding: 0 16px 16px; }
 
-  /* Controls row */
-  .ot .controls { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
-  .ot .controls .field { flex: 0 0 auto; }
-  .ot .controls .field.month select { min-width: 150px; }
-  .ot .controls .field.std input { width: 90px; }
+  /* Rule explainer callout */
+  .ot .rules { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px;
+    margin-bottom: 20px; background: #F7F5F0; border: 1px solid #EAE6DE; }
+  .ot .rules .ms { color: var(--primary); font-size: 20px; line-height: 1; margin-top: 1px; }
+  .ot .rules p { font-size: 12.5px; color: var(--text2); margin: 0; line-height: 1.6; }
+  .ot .rules b { color: var(--text); }
 
-  /* Table */
+  /* Controls row */
+  .ot .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .ot .controls .field { flex: 0 0 auto; }
+  .ot .controls .field.month { min-width: 170px; }
+  .ot .controls .field.std input { width: 90px; }
+  .ot .controls .field label { font-size: 12px; font-weight: 600; color: var(--text3); }
+  .ot .controls .stdchip { font-family: var(--mono); font-size: 13px; font-weight: 600;
+    padding: 7px 11px; border-radius: 9px; border: 1px solid var(--border); background: #fff; }
+  .ot .controls .right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  /* hours data-source badge (chip) */
+  .ot .srcbadge { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600;
+    padding: 6px 11px; border-radius: 999px; }
+  .ot .srcbadge .ms { font-size: 15px; line-height: 1; }
+  .ot .srcbadge.local { background: var(--surface-hover); color: var(--text2); }
+  .ot .srcbadge.ac { background: var(--success-light); color: var(--success); }
+
+  /* local vs AC comparison bar */
+  .ot .cmpbar { display: flex; align-items: center; gap: 18px; padding: 14px 18px; border-radius: 14px;
+    margin: 0 0 16px; background: var(--info-light); border: 1px solid #CFE0E8; flex-wrap: wrap; font-size: 12.5px; }
+  .ot .cmpbar .title { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--info); }
+  .ot .cmpbar .title .ms { font-size: 19px; line-height: 1; }
+  .ot .cmpbar .pair { display: inline-flex; align-items: center; gap: 8px; color: var(--info); }
+  .ot .cmpbar .pair .lbl { color: #7A9AAA; }
+  .ot .cmpbar .pair b { font-family: var(--mono); color: #2F5A6E; }
+  .ot .cmpbar .arrow { font-size: 16px; color: #7A9AAA; }
+  .ot .cmpbar .hint { margin-left: auto; font-size: 11.5px; color: #5E8395; }
+
+  /* summary tiles */
+  .ot .otsummary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 0 0 20px; }
+  .ot .otsummary .s { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 15px; }
+  .ot .otsummary .s .k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); font-weight: 700; }
+  .ot .otsummary .s b { display: block; font-size: 22px; font-weight: 700; margin-top: 8px; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  .ot .otsummary .s .d { font-size: 11px; color: var(--text3); }
+  .ot .otsummary .over  { color: var(--success); }
+  .ot .otsummary .under { color: var(--error); }
+  .ot .otsummary .ok    { color: var(--success); }
+  /* the terracotta gradient "Overtime to push" tile */
+  .ot .otsummary .s.hero { background: linear-gradient(150deg, #C4623C, #A94F2E); border: 0; color: #fff; }
+  .ot .otsummary .s.hero .k { color: rgba(255,255,255,.85); }
+  .ot .otsummary .s.hero b { color: #fff; }
+  .ot .otsummary .s.hero .d { color: rgba(255,255,255,.85); }
+  @media (max-width: 860px) { .ot .otsummary { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Table card */
+  .ot .tablecard { background: #fff; border: 1px solid var(--border); border-radius: var(--r-lg);
+    overflow: hidden; box-shadow: var(--shadow-xs); margin-bottom: 16px; }
+  .ot .tablecard .thead { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid #F0EDE6; gap: 12px; flex-wrap: wrap; }
+  .ot .tablecard .thead .ttl { font-size: 15px; font-weight: 700; }
+  .ot .tablecard .thead .hint { font-size: 12px; color: var(--text3); }
+  .ot .tablecard .thead .pushall { margin-left: auto; }
+
   .ot .wrap { overflow-x: auto; }
   .ot table { width: 100%; border-collapse: collapse; }
-  .ot th, .ot td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right;
-    font-variant-numeric: tabular-nums; }
-  .ot th:first-child, .ot td:first-child { text-align: left; }
-  .ot th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text3); font-weight: 600; }
+  .ot th, .ot td { padding: 13px 14px; border-bottom: 1px solid #F0EDE6; text-align: left; vertical-align: middle; }
+  .ot th:first-child, .ot td:first-child { padding-left: 20px; }
+  .ot th:last-child, .ot td:last-child { padding-right: 20px; text-align: right; }
+  .ot thead tr { background: #FAF9F6; }
+  .ot th { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); font-weight: 700; }
   .ot tbody tr { color: var(--text); }
-  .ot tr.muted td { color: var(--text3); }
-  .ot tr.short td .dev { color: var(--warning); font-weight: 600; }
-  .ot tr.push { background: var(--success-light); }
-  .ot tr.push td .dev { color: var(--success); font-weight: 600; }
-  .ot td .day { font-weight: 600; color: var(--text); }
-  .ot tr.muted td .day { color: var(--text3); font-weight: 500; }
-  .ot .wkend { display: inline-block; margin-left: 8px; font-size: 10px; font-weight: 600; padding: 1px 7px;
-    border-radius: 999px; background: var(--primary-light); color: var(--primary-dark); vertical-align: middle; }
-  .ot .editot { width: 72px; text-align: right; }
-  .ot .legend { color: var(--text2); font-size: 12px; margin: 10px 2px 0; max-width: 70ch; }
+  .ot tbody tr.push { background: var(--success-light); }
+  .ot tbody tr.short td .dev { color: var(--warning); }
+  .ot td .day { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .ot tr.muted td .day { color: var(--text2); }
+  .ot .wkend { display: block; font-size: 10px; font-weight: 600; padding: 0; margin-top: 1px;
+    color: var(--warning); }
+
+  /* mono numeric cells */
+  .ot td.num, .ot td.logged, .ot td.dev, .ot td.banked, .ot td.daytask { font-family: var(--mono); }
+  .ot td.logged .lg { font-size: 13px; font-weight: 600; color: var(--text); }
+  .ot .hdec { font-size: 11px; color: var(--text3); font-weight: 500; }
+  .ot .deltachip { display: inline-block; margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px;
+    border-radius: 6px; background: var(--info-light); }
+  .ot td.dev { font-size: 13px; font-weight: 600; }
+  .ot .dev.over  { color: var(--success); }
+  .ot .dev.under { color: var(--error); }
+  .ot .dev.zero  { color: var(--text3); }
+  .ot .devdec { color: var(--text3); font-weight: 500; font-size: 11px; }
+  .ot td.banked { font-size: 13px; color: var(--text3); }
+
+  /* editable "Will push" chip */
+  .ot input.editot { display: inline-block; width: 74px; min-width: 58px; text-align: right; font-family: var(--mono);
+    font-size: 13px; font-weight: 700; color: var(--primary-dark); padding: 6px 10px; border: 1px solid var(--border);
+    border-radius: 8px; background: #fff; box-sizing: border-box; }
+
+  /* status pills */
+  .ot .stpill { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .ot .stpill.push  { background: var(--success-light); color: var(--success); }
+  .ot .stpill.bank  { background: var(--warning-light); color: var(--warning); }
+  .ot .stpill.short { background: var(--error-light);   color: var(--error); }
+  .ot .stpill.on    { background: var(--surface-hover); color: var(--text3); }
+  .ot .status { font-size: 12px; }
+  .ot .status.ok { color: var(--success); } .ot .status.err { color: var(--error); }
+  .ot .pushedtag { display: inline-flex; align-items: center; gap: 4px; color: var(--success); font-weight: 600; font-size: 11.5px; }
+  .ot .pushedtag .ms { font-size: 15px; line-height: 1; }
+
+  /* per-day task column */
+  .ot td.daytask { max-width: 220px; font-size: 12px; color: var(--text2); }
+  .ot td.daytask .dtname { color: var(--text2); }
+  .ot td.daytask .dtnomatch { color: var(--warning); }
+  .ot td.daytask .dtnomatch em { color: var(--text3); font-style: normal; }
+  .ot td.daytask .dtfallback { color: var(--text3); }
+
+  /* legend */
+  .ot .legend { color: var(--text2); font-size: 12px; margin: 14px 2px 0; max-width: 74ch; line-height: 1.6; }
 
   /* What-will-push panel */
-  .ot .pushbox { border: 1px solid var(--success); background: var(--success-light); border-radius: 12px;
-    padding: 16px; margin: 16px 0; }
+  .ot .pushbox { border: 1px solid rgba(var(--success-rgb), .4); background: var(--success-light);
+    border-radius: 14px; padding: 16px; margin: 16px 0; }
   .ot .pushbox .big { font-size: 18px; color: var(--text); }
-  .ot .pushbox .big b { color: var(--success); font-size: 22px; }
+  .ot .pushbox .big b { color: var(--success); font-size: 22px; font-family: var(--mono); }
   .ot .pushbox .dec { color: var(--text2); font-size: 13px; }
   .ot .pushbox .days { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
-  .ot .pushbox .days .d { font-size: 12px; background: #fff; color: var(--success);
-    border: 1px solid rgba(var(--success-rgb), .35); border-radius: 6px; padding: 3px 9px; font-variant-numeric: tabular-nums; }
+  .ot .pushbox .days .d { font-size: 12px; background: #fff; color: var(--success); font-family: var(--mono);
+    border: 1px solid rgba(var(--success-rgb), .35); border-radius: 8px; padding: 3px 9px; }
   .ot .pushbox .days .none { color: var(--text3); font-size: 13px; }
   .ot .pushbox .secondary { color: var(--text2); font-size: 13px; margin-top: 8px; }
 
-  .ot button { padding: 10px 18px; border-radius: 8px; border: 0; background: var(--primary); color: #fff;
-    font: inherit; font-weight: 600; cursor: pointer; }
-  .ot button:hover:not(:disabled) { background: var(--primary-hover); }
-  .ot button:disabled { opacity: .5; cursor: not-allowed; }
-  .ot .status { font-size: 12px; }
-  .ot .status.ok { color: var(--success); } .ot .status.err { color: var(--error); }
+  /* per-day overtime summaries — the exact note that will be pushed */
+  .ot .otsummaries { list-style: none; margin: 12px 0 0; padding: 12px 0 0; border-top: 1px dashed rgba(var(--success-rgb), .3); display: grid; gap: 8px; }
+  .ot .otsummaries li { display: grid; grid-template-columns: 100px 1fr; gap: 10px; align-items: start; font-size: 12.5px; }
+  .ot .otsummaries .d { font-weight: 700; color: var(--text2); white-space: nowrap; }
+  .ot .otsummaries .txt { color: var(--text2); line-height: 1.45; }
+
   .ot a.back { color: var(--primary-dark); font-size: 13px; text-decoration: none; }
   .ot a.back:hover { text-decoration: underline; }
+  .ot .toptask { margin-top: 8px; font-size: 12.5px; color: var(--primary-dark); background: var(--primary-light);
+    border: 1px solid rgba(var(--primary-rgb), .25); border-radius: 8px; padding: 7px 10px; }
 
-/* task picker (Load tasks from ActiveCollab) */
-.ot .tasklist { margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.ot .taskfilter { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 0; border-bottom: 1px solid var(--border);
-  font: inherit; font-size: 13px; background: #fff; color: var(--text); }
-.ot .tasklist table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-.ot .tasklist th { text-align: left; padding: 7px 10px; background: var(--surface); color: var(--text3);
-  font-size: 10px; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; }
-.ot .tasklist td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-.ot .tasklist tbody tr:hover { background: #FAFCFE; }
-.ot .tasklist tbody tr.sel { background: var(--success-light); }
-.ot .tasklist tbody tr.sel td { color: var(--success); font-weight: 600; }
+  /* task picker (Load tasks from ActiveCollab) */
+  .ot .tasklist { margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .ot .taskfilter { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 0; border-bottom: 1px solid var(--border);
+    font: inherit; font-size: 13px; background: #fff; color: var(--text); border-radius: 0; }
+  .ot .tasklist table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .ot .tasklist th { text-align: left; padding: 7px 10px; background: #FAF9F6; color: var(--text3);
+    font-size: 10px; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; }
+  .ot .tasklist td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; text-align: left; }
+  .ot .tasklist tbody tr:hover { background: var(--surface); }
+  .ot .tasklist tbody tr.sel { background: var(--primary-light); }
+  .ot .tasklist tbody tr.sel td { color: var(--primary-dark); font-weight: 600; }
 
-/* deviation + month-summary readability */
-.ot .dev.over  { color: var(--success); font-weight: 700; }
-.ot .dev.under { color: var(--error);   font-weight: 700; }
-.ot .dev.zero  { color: var(--text3); }
-.ot .devdec { color: var(--text3); font-weight: 500; font-size: 11px; }
-.ot .hdec   { color: var(--text3); font-weight: 500; font-size: 11px; }
-.ot .toptask { margin-top: 8px; font-size: 12.5px; color: var(--primary-dark); background: var(--primary-light);
-  border: 1px solid rgba(var(--primary-rgb), .25); border-radius: 8px; padding: 7px 10px; }
+  /* lightweight loading overlay for "Use real ActiveCollab hours" */
+  .ot .otloading { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center;
+    gap: 10px; background: rgba(255,255,255,.72); backdrop-filter: blur(1px); border-radius: var(--r-lg);
+    font-size: 14px; font-weight: 600; color: var(--text2); }
+  .ot .otspin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--border-strong);
+    border-top-color: var(--primary); animation: otspin .7s linear infinite; }
+  @keyframes otspin { to { transform: rotate(360deg); } }
 
-.ot .otsummary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0 14px; }
-.ot .otsummary .s { border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; background: var(--card); }
-.ot .otsummary .s .k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--text3); font-weight: 700; }
-.ot .otsummary .s b { display: block; font-size: 20px; margin-top: 3px; font-variant-numeric: tabular-nums; }
-.ot .otsummary .s .d { font-size: 11px; color: var(--text3); }
-.ot .otsummary .over  { color: var(--success); }
-.ot .otsummary .under { color: var(--error); }
-
-/* hours data-source badge */
-.ot .srcbadge { display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
-.ot .srcbadge.local { background: var(--surface-hover); color: var(--text2); }
-.ot .srcbadge.ac { background: var(--success-light); color: var(--success); }
-.ot .srcswitch { margin-left: 8px; border: 0; background: none; color: var(--primary-dark); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; }
-
-/* per-day task column + per-row push */
-.ot td.daytask { max-width: 220px; font-size: 12px; }
-.ot td.daytask .dtname { color: var(--text2); }
-.ot td.daytask .dtnomatch { color: var(--warning); }
-.ot td.daytask .dtnomatch em { color: var(--text3); font-style: normal; }
-.ot td.daytask .dtfallback { color: var(--text3); }
-.ot .pushone { border: 1px solid var(--primary); background: var(--primary); color: #fff;
-  border-radius: 7px; padding: 4px 11px; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
-.ot .pushone:hover:not(:disabled) { background: var(--primary-hover); }
-.ot .pushone:disabled { opacity: .5; cursor: not-allowed; }
-
-/* lightweight loading overlay for "Use real ActiveCollab hours" */
-.ot .otloading { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center;
-  gap: 10px; background: rgba(255,255,255,.72); backdrop-filter: blur(1px); border-radius: 12px;
-  font-size: 14px; font-weight: 600; color: var(--text2); }
-.ot .otspin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--border-strong);
-  border-top-color: var(--primary); animation: otspin .7s linear infinite; }
-@keyframes otspin { to { transform: rotate(360deg); } }
-
-/* per-day overtime summaries — the exact note that will be pushed to ActiveCollab */
-.ot .otsummaries { list-style: none; margin: 12px 0 0; padding: 12px 0 0; border-top: 1px dashed var(--border); display: grid; gap: 8px; }
-.ot .otsummaries li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; align-items: start; font-size: 12.5px; }
-.ot .otsummaries .d { font-weight: 700; color: var(--text2); white-space: nowrap; }
-.ot .otsummaries .txt { color: var(--text2); line-height: 1.45; }
-
-/* persisted "already pushed" state */
-.ot .otsummary .ok { color: var(--success); }
-.ot .pushedtag { color: var(--success); font-weight: 700; font-size: 11.5px; }
-.ot .pushone.repush { background: var(--surface-hover); color: var(--text2); border-color: var(--border-strong); }
-.ot .pushone.repush:hover:not(:disabled) { background: var(--surface); color: var(--text); }
+  /* terracotta action-icon button in a row */
+  .ot .pushicon { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #E4B79F;
+    background: var(--primary-light); color: var(--primary); cursor: pointer; display: inline-grid; place-items: center; }
+  .ot .pushicon:hover:not(:disabled) { background: #F6DFD3; }
+  .ot .pushicon:disabled { opacity: .5; cursor: not-allowed; }
+  .ot .pushicon .ms { font-size: 17px; line-height: 1; }
